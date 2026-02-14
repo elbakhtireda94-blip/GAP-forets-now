@@ -1,0 +1,112 @@
+[
+  {
+    "id": "prev-001",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-001",
+    "site_id": "SITE-001",
+    "action_type": "Reboisement",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_prevue": 52,
+    "budget_prevu": 520000
+  },
+  {
+    "id": "prev-002",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-001",
+    "site_id": "SITE-002",
+    "action_type": "Reboisement",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_prevue": 30,
+    "budget_prevu": 300000
+  },
+  {
+    "id": "prev-003",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-002",
+    "site_id": "SITE-003",
+    "action_type": "Apiculture",
+    "annee": 2024,
+    "unite": "ruches",
+    "quantite_prevue": 400,
+    "budget_prevu": 200000
+  },
+  {
+    "id": "prev-004",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-002",
+    "site_id": "SITE-004",
+    "action_type": "Reboisement",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_prevue": 200,
+    "budget_prevu": 2000000
+  },
+  {
+    "id": "prev-005",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-003",
+    "site_id": "SITE-005",
+    "action_type": "Regeneration",
+    "annee": 2025,
+    "unite": "ha",
+    "quantite_prevue": 54,
+    "budget_prevu": 540000
+  },
+  {
+    "id": "prev-006",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-004",
+    "site_id": "SITE-007",
+    "action_type": "Points_Eau",
+    "annee": 2024,
+    "unite": "m3",
+    "quantite_prevue": 1,
+    "budget_prevu": 50000
+  },
+  {
+    "id": "prev-007",
+    "commune_code": "ARGANA",
+    "perimetre_id": "PER-005",
+    "site_id": "SITE-008",
+    "action_type": "Reboisement",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_prevue": 100,
+    "budget_prevu": 1000000
+  },
+  {
+    "id": "prev-008",
+    "commune_code": "ARGANA",
+    "perimetre_id": "PER-006",
+    "site_id": "SITE-010",
+    "action_type": "CMD",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_prevue": 75,
+    "budget_prevu": 375000
+  },
+  {
+    "id": "prev-009",
+    "commune_code": "TALIOUINE",
+    "perimetre_id": "PER-007",
+    "site_id": "SITE-011",
+    "action_type": "PFNL",
+    "annee": 2024,
+    "unite": "kg",
+    "quantite_prevue": 500,
+    "budget_prevu": 250000
+  },
+  {
+    "id": "prev-010",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-001",
+    "site_id": "SITE-001",
+    "action_type": "Sensibilisation",
+    "annee": 2024,
+    "unite": "sessions",
+    "quantite_prevue": 10,
+    "budget_prevu": 50000
+  }
+]

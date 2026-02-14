@@ -1,0 +1,40 @@
+---
+description: Logique métier GAP Forêts — acteurs, entités, conflits/oppositions, principes à respecter dans le code
+alwaysApply: true
+---
+
+# GAP Forêts — Contexte métier
+
+## Vision (à garder en tête)
+
+**GAP Forêts** est un système de gouvernance forestière participative (ANEF) qui structure l’animation territoriale, gère les conflits et oppositions, et aide à la décision via des données terrain collectées par les **ADP** et validées de façon **hiérarchique**.
+
+En anglais (pour formulations techniques) : *"GAP Forêts is a participatory forest governance system designed to structure territorial animation, manage conflicts and opposition, and support decision-making through field-based data collected by ADPs and validated hierarchically."*
+
+## Acteurs & hiérarchie
+
+- **ADP** : agent terrain (animation, médiation, PDFCP, conflits, activités, preuves).
+- **DPANEF** : provincial — supervision, validation intermédiaire, arbitrage local.
+- **DRANEF** : régional — validation finale, pilotage, zones à risque.
+- **Central** : national — dashboards, stratégie.
+
+Hiérarchie à respecter dans les workflows : **ADP → DPANEF → DRANEF**.
+
+## Entités principales
+
+- **PDFCP** : plan quinquennal communal participatif (états : Brouillon → … → Validé → Exécution → Clôturé).
+- **Conflit** : désaccord latent ou déclaré (peut exister sans opposition).
+- **Opposition** : forme déclarée du conflit (blocage terrain) ; *toute opposition est un conflit, pas l’inverse*.
+- **Activité** : action terrain (réunion, sensibilisation, reboisement, etc.) liée à un PDFCP.
+- **ODF** : organisation des usagers (forestière).
+- **ADP** : agent avec affectation territoriale (DRANEF/DPANEF/Commune).
+
+## Principes à intégrer dans le code
+
+1. **Participatif avant coercitif** — privilégier concertation et médiation.
+2. **Traçabilité totale** — historique immuable des validations et actions.
+3. **Données terrain comme source** — saisie ADP, preuves (photos, PV, localisation).
+4. **Décision sur indicateurs** — alertes (conflit non traité, PDFCP sans activité, zones à risque), pas sur intuition.
+5. **Géospatial** — localisation (point/polygone) et rattachement commune pour conflits, PDFCP, activités.
+
+Lors de l’ajout de fonctionnalités (PDFCP, conflits, oppositions, activités, rôles), se référer à `docs/logique-metier-gap-forets.md` pour le détail des états, attributs et règles métier.

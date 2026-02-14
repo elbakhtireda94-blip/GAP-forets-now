@@ -1,0 +1,98 @@
+[
+  {
+    "id": "cp-001",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-001",
+    "site_id": "SITE-001",
+    "action_type": "Reboisement",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_programmee": 50,
+    "budget_programme": 500000,
+    "reference_cp": "CP-2024-001"
+  },
+  {
+    "id": "cp-002",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-001",
+    "site_id": "SITE-002",
+    "action_type": "Reboisement",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_programmee": 28,
+    "budget_programme": 280000,
+    "reference_cp": "CP-2024-001"
+  },
+  {
+    "id": "cp-003",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-002",
+    "site_id": "SITE-003",
+    "action_type": "Apiculture",
+    "annee": 2024,
+    "unite": "ruches",
+    "quantite_programmee": 350,
+    "budget_programme": 175000,
+    "reference_cp": "CP-2024-002"
+  },
+  {
+    "id": "cp-004",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-002",
+    "site_id": "SITE-004",
+    "action_type": "Reboisement",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_programmee": 180,
+    "budget_programme": 1800000,
+    "reference_cp": "CP-2024-002"
+  },
+  {
+    "id": "cp-005",
+    "commune_code": "ARGANA",
+    "perimetre_id": "PER-005",
+    "site_id": "SITE-008",
+    "action_type": "Reboisement",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_programmee": 90,
+    "budget_programme": 900000,
+    "reference_cp": "CP-2024-003"
+  },
+  {
+    "id": "cp-006",
+    "commune_code": "ARGANA",
+    "perimetre_id": "PER-006",
+    "site_id": "SITE-010",
+    "action_type": "CMD",
+    "annee": 2024,
+    "unite": "ha",
+    "quantite_programmee": 70,
+    "budget_programme": 350000,
+    "reference_cp": "CP-2024-003"
+  },
+  {
+    "id": "cp-007",
+    "commune_code": "TALIOUINE",
+    "perimetre_id": "PER-007",
+    "site_id": "SITE-011",
+    "action_type": "PFNL",
+    "annee": 2024,
+    "unite": "kg",
+    "quantite_programmee": 450,
+    "budget_programme": 225000,
+    "reference_cp": "CP-2024-004"
+  },
+  {
+    "id": "cp-008",
+    "commune_code": "TIQQUI",
+    "perimetre_id": "PER-001",
+    "site_id": "SITE-001",
+    "action_type": "Sensibilisation",
+    "annee": 2024,
+    "unite": "sessions",
+    "quantite_programmee": 8,
+    "budget_programme": 40000,
+    "reference_cp": "CP-2024-001"
+  }
+]

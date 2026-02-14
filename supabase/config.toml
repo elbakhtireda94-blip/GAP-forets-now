@@ -1,0 +1,13 @@
+project_id = "zfhjfuaqugbnbpftisuf"
+
+[functions.seed-demo-accounts]
+verify_jwt = false
+
+[functions.send-unlock-request-email]
+verify_jwt = false
+
+[functions.transcribe-audio]
+verify_jwt = false
+
+[functions.admin-role-setup]
+verify_jwt = false

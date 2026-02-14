@@ -1,0 +1,297 @@
+{
+  "regions": [
+    {
+      "id": "R01",
+      "name": "Rabat-Salé-Kénitra",
+      "dranef": [
+        {
+          "id": "DR01",
+          "name": "DRANEF Rabat-Salé-Kénitra",
+          "dpanef": [
+            {
+              "id": "DP01",
+              "name": "DPANEF Kénitra",
+              "communes": [
+                { "id": "C01", "name": "Sidi Allal Bahraoui" },
+                { "id": "C02", "name": "Sidi Yahia Zaer" }
+              ]
+            },
+            {
+              "id": "DP02",
+              "name": "DPANEF Rabat",
+              "communes": [
+                { "id": "C03", "name": "Ain El Aouda" },
+                { "id": "C04", "name": "Temara" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R02",
+      "name": "Beni Mellal-Khénifra",
+      "dranef": [
+        {
+          "id": "DR02",
+          "name": "DRANEF Beni Mellal-Khénifra",
+          "dpanef": [
+            {
+              "id": "DP03",
+              "name": "DPANEF Khénifra",
+              "communes": [
+                { "id": "C05", "name": "Aguelmam Azegza" },
+                { "id": "C06", "name": "Aghbala" }
+              ]
+            },
+            {
+              "id": "DP04",
+              "name": "DPANEF Beni Mellal",
+              "communes": [
+                { "id": "C07", "name": "Fquih Ben Salah" },
+                { "id": "C08", "name": "Kasba Tadla" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "R03",
+      "name": "Fès-Meknès",
+      "dranef": [
+        {
+          "id": "DR03",
+          "name": "DRANEF Fès-Meknès",
+          "dpanef": [
+            {
+              "id": "DP05",
+              "name": "DPANEF Ifrane",
+              "communes": [
+                { "id": "C09", "name": "Ifrane" },
+                { "id": "C10", "name": "Azrou" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "U01",
+      "email": "adp@anef.ma",
+      "password": "anef2025",
+      "full_name": "AHADRI Loubna",
+      "role": "adp",
+      "region_id": "R02",
+      "dranef_id": "DR02",
+      "dpanef_id": "DP03",
+      "commune_id": "C05"
+    },
+    {
+      "id": "U02",
+      "email": "admin@anef.ma",
+      "password": "admin2025",
+      "full_name": "Admin ANEF",
+      "role": "admin",
+      "region_id": "",
+      "dranef_id": "",
+      "dpanef_id": "",
+      "commune_id": ""
+    }
+  ],
+  "adp": [
+    {
+      "id": "ADP01",
+      "full_name": "AHADRI Loubna",
+      "region_id": "R02",
+      "dranef_id": "DR02",
+      "dpanef_id": "DP03",
+      "commune_id": "C05",
+      "phone": "0661234567",
+      "email": "ahadri@anef.ma",
+      "status": "Actif"
+    },
+    {
+      "id": "ADP02",
+      "full_name": "BENALI Mohammed",
+      "region_id": "R01",
+      "dranef_id": "DR01",
+      "dpanef_id": "DP01",
+      "commune_id": "C01",
+      "phone": "0662345678",
+      "email": "benali@anef.ma",
+      "status": "Actif"
+    },
+    {
+      "id": "ADP03",
+      "full_name": "CHERKAOUI Fatima",
+      "region_id": "R03",
+      "dranef_id": "DR03",
+      "dpanef_id": "DP05",
+      "commune_id": "C09",
+      "phone": "0663456789",
+      "email": "cherkaoui@anef.ma",
+      "status": "Inactif"
+    }
+  ],
+  "pdfc": [
+    {
+      "id": "PDFC01",
+      "title": "PDFCP Aguelmam Azegza 2024-2028",
+      "commune_id": "C05",
+      "year_start": 2024,
+      "year_end": 2028,
+      "status": "En cours",
+      "adp_responsable": "ADP01",
+      "components": [
+        { "type": "Reboisement", "surface_ha": 120, "budget_dh": 450000 },
+        { "type": "Régénération", "surface_ha": 80, "budget_dh": 280000 },
+        { "type": "Points d'eau", "nombre": 5, "budget_dh": 150000 }
+      ]
+    },
+    {
+      "id": "PDFC02",
+      "title": "PDFCP Sidi Allal Bahraoui 2024-2028",
+      "commune_id": "C01",
+      "year_start": 2024,
+      "year_end": 2028,
+      "status": "Validé",
+      "adp_responsable": "ADP02",
+      "components": [
+        { "type": "Reboisement", "surface_ha": 200, "budget_dh": 750000 },
+        { "type": "Pistes", "longueur_km": 15, "budget_dh": 300000 }
+      ]
+    },
+    {
+      "id": "PDFC03",
+      "title": "PDFCP Ifrane 2023-2027",
+      "commune_id": "C09",
+      "year_start": 2023,
+      "year_end": 2027,
+      "status": "Finalisé",
+      "adp_responsable": "ADP03",
+      "components": [
+        { "type": "Reboisement", "surface_ha": 300, "budget_dh": 1200000 },
+        { "type": "Régénération", "surface_ha": 150, "budget_dh": 500000 },
+        { "type": "Activités complémentaires", "nombre": 10, "budget_dh": 200000 }
+      ]
+    }
+  ],
+  "activities": [
+    {
+      "id": "ACT01",
+      "type": "Sensibilisation",
+      "date": "2024-11-12",
+      "adp_id": "ADP01",
+      "commune_id": "C05",
+      "description": "Réunion participative avec la population locale sur les pratiques durables",
+      "participants": 45,
+      "issues": "Opposition partielle sur la mise en défens",
+      "resolution": "Dialogue engagé avec les parties prenantes"
+    },
+    {
+      "id": "ACT02",
+      "type": "Formation",
+      "date": "2024-10-25",
+      "adp_id": "ADP02",
+      "commune_id": "C01",
+      "description": "Formation des éleveurs sur la gestion pastorale",
+      "participants": 30,
+      "issues": "",
+      "resolution": ""
+    },
+    {
+      "id": "ACT03",
+      "type": "Visite terrain",
+      "date": "2024-12-05",
+      "adp_id": "ADP01",
+      "commune_id": "C05",
+      "description": "Suivi des parcelles reboisées",
+      "participants": 12,
+      "issues": "",
+      "resolution": ""
+    },
+    {
+      "id": "ACT04",
+      "type": "Réunion communautaire",
+      "date": "2024-09-18",
+      "adp_id": "ADP03",
+      "commune_id": "C09",
+      "description": "Consultation sur le plan de développement forestier",
+      "participants": 60,
+      "issues": "Demandes de compensation",
+      "resolution": "Étude des options en cours"
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "CONF01",
+      "commune_id": "C05",
+      "nature": "Opposition aux travaux de reforestation",
+      "description": "Éleveurs refusent la délimitation de zones de pâturage protégées",
+      "status": "En cours",
+      "severity": "Moyenne",
+      "handled_by": "ADP01",
+      "date_reported": "2024-10-15",
+      "resolution_notes": "Négociations en cours avec les représentants des éleveurs",
+      "type": "Opposition",
+      "superficie_opposee_ha": 125.5
+    },
+    {
+      "id": "CONF02",
+      "commune_id": "C01",
+      "nature": "Conflit foncier",
+      "description": "Litige sur les limites des parcelles forestières",
+      "status": "Résolu",
+      "severity": "Faible",
+      "handled_by": "ADP02",
+      "date_reported": "2024-08-20",
+      "resolution_notes": "Accord trouvé après médiation avec les autorités locales",
+      "type": "Conflit",
+      "superficie_opposee_ha": 45.0,
+      "resolution_date": "2024-09-15"
+    },
+    {
+      "id": "CONF03",
+      "commune_id": "C09",
+      "nature": "Opposition aux travaux de reforestation",
+      "description": "Communauté locale conteste l'emplacement des zones de reboisement",
+      "status": "En cours",
+      "severity": "Élevée",
+      "handled_by": "ADP03",
+      "date_reported": "2024-11-01",
+      "resolution_notes": "Réunion de concertation prévue",
+      "type": "Opposition",
+      "superficie_opposee_ha": 230.0
+    },
+    {
+      "id": "CONF04",
+      "commune_id": "C03",
+      "nature": "Opposition aux accès (points d'eau, pistes, etc.)",
+      "description": "Refus des travaux d'aménagement par la population locale",
+      "status": "Résolu",
+      "severity": "Moyenne",
+      "handled_by": "ADP01",
+      "date_reported": "2024-07-12",
+      "resolution_notes": "Accord négocié avec concessions mutuelles",
+      "type": "Opposition",
+      "superficie_opposee_ha": 85.0,
+      "resolution_date": "2024-08-25"
+    },
+    {
+      "id": "CONF05",
+      "commune_id": "C07",
+      "nature": "Privation du droit d'usage",
+      "description": "Conflit d'usage entre éleveurs et gestionnaires forestiers",
+      "status": "En cours",
+      "severity": "Critique",
+      "handled_by": "ADP02",
+      "date_reported": "2024-12-01",
+      "resolution_notes": "Médiation en cours",
+      "type": "Conflit",
+      "superficie_opposee_ha": 180.0
+    }
+  ]
+}

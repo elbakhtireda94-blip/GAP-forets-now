@@ -1,0 +1,80 @@
+[
+  {
+    "commune_code": "TIQQUI",
+    "commune": "Tiqqui",
+    "dpanef": "DPANEF Taroudant",
+    "dranef": "DRANEF Souss-Massa",
+    "perimetres": [
+      {
+        "perimetre_id": "PER-001",
+        "nom": "Ida Oussouar",
+        "sites": [
+          { "site_id": "SITE-001", "nom": "Versant Nord" },
+          { "site_id": "SITE-002", "nom": "Versant Sud" }
+        ]
+      },
+      {
+        "perimetre_id": "PER-002",
+        "nom": "Inzerki",
+        "sites": [
+          { "site_id": "SITE-003", "nom": "Zone A - Rucher" },
+          { "site_id": "SITE-004", "nom": "Zone B - Forêt" }
+        ]
+      },
+      {
+        "perimetre_id": "PER-003",
+        "nom": "Tamgounsi",
+        "sites": [
+          { "site_id": "SITE-005", "nom": "Parcelle 1" },
+          { "site_id": "SITE-006", "nom": "Parcelle 2" }
+        ]
+      },
+      {
+        "perimetre_id": "PER-004",
+        "nom": "Ain Asmama",
+        "sites": [
+          { "site_id": "SITE-007", "nom": "Point d'eau principal" }
+        ]
+      }
+    ]
+  },
+  {
+    "commune_code": "ARGANA",
+    "commune": "Argana",
+    "dpanef": "DPANEF Taroudant",
+    "dranef": "DRANEF Souss-Massa",
+    "perimetres": [
+      {
+        "perimetre_id": "PER-005",
+        "nom": "Tafraout",
+        "sites": [
+          { "site_id": "SITE-008", "nom": "Arganier Est" },
+          { "site_id": "SITE-009", "nom": "Arganier Ouest" }
+        ]
+      },
+      {
+        "perimetre_id": "PER-006",
+        "nom": "Igherm",
+        "sites": [
+          { "site_id": "SITE-010", "nom": "Reboisement 2024" }
+        ]
+      }
+    ]
+  },
+  {
+    "commune_code": "TALIOUINE",
+    "commune": "Taliouine",
+    "dpanef": "DPANEF Taroudant",
+    "dranef": "DRANEF Souss-Massa",
+    "perimetres": [
+      {
+        "perimetre_id": "PER-007",
+        "nom": "Zone Safran",
+        "sites": [
+          { "site_id": "SITE-011", "nom": "Parcelle Safran Nord" },
+          { "site_id": "SITE-012", "nom": "Parcelle Safran Sud" }
+        ]
+      }
+    ]
+  }
+]

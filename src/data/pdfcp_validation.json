@@ -1,0 +1,26 @@
+[
+  {
+    "pdfcpId": "PDFC01",
+    "status": "DRAFT",
+    "locked": false,
+    "validatedAdpBy": null,
+    "validatedAdpAt": null,
+    "validatedDpanefBy": null,
+    "validatedDpanefAt": null,
+    "visaDranefBy": null,
+    "visaDranefAt": null,
+    "note": null
+  },
+  {
+    "pdfcpId": "PDFC02",
+    "status": "VALIDATED_DPANEF",
+    "locked": true,
+    "validatedAdpBy": { "userId": "ADP01", "name": "AHADRI Loubna" },
+    "validatedAdpAt": "2024-05-10T10:00:00Z",
+    "validatedDpanefBy": { "userId": "U05", "name": "DPANEF Khénifra" },
+    "validatedDpanefAt": "2024-05-15T16:00:00Z",
+    "visaDranefBy": null,
+    "visaDranefAt": null,
+    "note": "Données validées pour l'exercice 2024"
+  }
+]

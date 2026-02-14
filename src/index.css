@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ANEF Green Theme */
+    --background: 140 20% 97%;
+    --foreground: 160 80% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 160 80% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 80% 15%;
+
+    /* Primary - ANEF Dark Green #006A4E */
+    --primary: 162 100% 21%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - ANEF Light Green #2C8F6B */
+    --secondary: 153 53% 37%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 140 15% 92%;
+    --muted-foreground: 160 20% 40%;
+
+    /* Accent - Forest Green Lighter */
+    --accent: 153 53% 37%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 140 20% 85%;
+    --input: 140 20% 85%;
+    --ring: 162 100% 21%;
+
+    --radius: 0.75rem;
+
+    /* Custom ANEF tokens */
+    --anef-dark: 162 100% 21%;
+    --anef-light: 153 53% 37%;
+    --anef-surface: 140 30% 96%;
+    --anef-overlay: 162 100% 21% / 0.6;
+    
+    /* Gradients */
+    --gradient-forest: linear-gradient(135deg, hsl(162 100% 21%), hsl(153 53% 37%));
+    --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(162 100% 21% / 0.7) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(140 30% 98%));
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(162 100% 21% / 0.1);
+    --shadow-card: 0 8px 32px hsl(162 100% 21% / 0.12);
+    --shadow-button: 0 4px 16px hsl(162 100% 21% / 0.25);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 160 30% 8%;
+    --foreground: 140 20% 95%;
+
+    --card: 160 25% 12%;
+    --card-foreground: 140 20% 95%;
+
+    --popover: 160 25% 12%;
+    --popover-foreground: 140 20% 95%;
+
+    --primary: 153 53% 45%;
+    --primary-foreground: 160 30% 8%;
+
+    --secondary: 160 25% 20%;
+    --secondary-foreground: 140 20% 95%;
+
+    --muted: 160 20% 18%;
+    --muted-foreground: 140 15% 65%;
+
+    --accent: 160 25% 20%;
+    --accent-foreground: 140 20% 95%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 160 20% 20%;
+    --input: 160 20% 20%;
+    --ring: 153 53% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .anef-gradient {
+    background: var(--gradient-forest);
+  }
+  
+  .anef-card {
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .anef-button-overlay {
+    background: hsl(var(--anef-overlay));
+    backdrop-filter: blur(8px);
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(12px);
+    background: hsl(0 0% 100% / 0.9);
+  }
+  
+  .forest-overlay {
+    background: linear-gradient(
+      180deg,
+      hsl(162 100% 21% / 0.3) 0%,
+      hsl(162 100% 21% / 0.7) 50%,
+      hsl(162 100% 21% / 0.9) 100%
+    );
+  }
+}
+
+@layer utilities {
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px hsl(0 0% 0% / 0.2);
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}

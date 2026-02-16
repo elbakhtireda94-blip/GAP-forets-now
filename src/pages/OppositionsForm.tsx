@@ -25,19 +25,13 @@ import {
 } from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { useDatabase, Conflict, CONFLICT_NATURES, CONFLICT_NATURE_MIGRATION } from '@/contexts/DatabaseContext';
+import { useDatabase, Conflict, CONFLICT_AXES, CONFLICT_NATURES_BY_AXE, type ConflictAxe, CONFLICT_NATURE_MIGRATION } from '@/contexts/DatabaseContext';
 import { useDraft } from '@/hooks/useDraft';
 import { useSync } from '@/contexts/SyncContext';
 import BottomNav from '@/components/BottomNav';
 import AppHeader from '@/components/AppHeader';
 import AppFooter from '@/components/AppFooter';
 import EmptyState from '@/components/EmptyState';
-
-// Types d'opposition - using the official list
-const typesOpposition = CONFLICT_NATURES.map(nature => ({
-  value: nature,
-  label: nature,
-}));
 
 // Niveaux de gravité
 const niveauxGravite: { value: Conflict['severity']; label: string; color: string }[] = [
@@ -72,6 +66,7 @@ interface OppositionFormData {
   foret_secteur: string;
   gps_lat: string;
   gps_lng: string;
+  axeId: ConflictAxe | ''; // Axe du conflit (ANEF–Population, Population–Population, ANEF–Institution)
   type: string;
   type_other: string; // When 'Autre' is selected
   description: string;
@@ -98,6 +93,7 @@ const emptyFormData: OppositionFormData = {
   foret_secteur: '',
   gps_lat: '',
   gps_lng: '',
+  axeId: '',
   type: '',
   type_other: '',
   description: '',
@@ -138,6 +134,7 @@ const OppositionsForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterAxe, setFilterAxe] = useState<ConflictAxe | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
@@ -162,11 +159,12 @@ const OppositionsForm: React.FC = () => {
   // Filtered conflicts
   const filteredConflicts = userOppositions.filter(conflict => {
     const matchesStatus = filterStatus === 'all' || conflict.status === filterStatus;
+    const matchesAxe = filterAxe === '' || conflict.axe === filterAxe;
     const matchesSearch = searchQuery === '' || 
       conflict.nature.toLowerCase().includes(searchQuery.toLowerCase()) ||
       conflict.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       getCommuneName(conflict.commune_id).toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
+    return matchesStatus && matchesAxe && matchesSearch;
   });
 
   const handleGetLocation = () => {
@@ -225,8 +223,12 @@ const OppositionsForm: React.FC = () => {
       toast({ title: "Erreur", description: "Veuillez sélectionner une commune", variant: "destructive" });
       return false;
     }
+    if (!formData.axeId) {
+      toast({ title: "Erreur", description: "Veuillez sélectionner l'axe du conflit", variant: "destructive" });
+      return false;
+    }
     if (!formData.type) {
-      toast({ title: "Erreur", description: "Veuillez sélectionner le type d'opposition", variant: "destructive" });
+      toast({ title: "Erreur", description: "Veuillez sélectionner la nature du conflit", variant: "destructive" });
       return false;
     }
     // Validate type_other if 'Autre' is selected
@@ -270,7 +272,8 @@ const OppositionsForm: React.FC = () => {
       const conflictData: Omit<Conflict, 'id'> = {
         commune_id: formData.communeId,
         type: 'Opposition', // Explicitly mark as Opposition for stats
-        nature: formData.type, // Now using the label directly since value = label
+        axe: formData.axeId || undefined, // Axe pour reporting hiérarchie (ANEF–Population, Population–Population, ANEF–Institution)
+        nature: formData.type,
         nature_other: formData.type === 'Autre' ? formData.type_other : undefined,
         description: formData.description,
         status: formData.status,
@@ -482,17 +485,40 @@ const OppositionsForm: React.FC = () => {
               <h3 className="font-semibold text-foreground">Détails de l'opposition</h3>
               
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Nature du conflit *</Label>
-                <Select 
-                  value={formData.type} 
-                  onValueChange={(v) => setFormData(prev => ({ ...prev, type: v, type_other: v !== 'Autre' ? '' : prev.type_other }))}
+                <Label className="text-xs text-muted-foreground">Axe du conflit *</Label>
+                <Select
+                  value={formData.axeId}
+                  onValueChange={(v: ConflictAxe) => setFormData(prev => ({
+                    ...prev,
+                    axeId: v,
+                    type: '',
+                    type_other: '',
+                  }))}
                 >
                   <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Sélectionner la nature" />
+                    <SelectValue placeholder="Sélectionner l'axe (ANEF–Population, Population–Population, ANEF–Institution)" />
                   </SelectTrigger>
                   <SelectContent>
-                    {typesOpposition.map(t => (
-                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                    {CONFLICT_AXES.map(axe => (
+                      <SelectItem key={axe.id} value={axe.id}>{axe.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Nature du conflit *</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(v) => setFormData(prev => ({ ...prev, type: v, type_other: v !== 'Autre' ? '' : prev.type_other }))}
+                  disabled={!formData.axeId}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder={formData.axeId ? "Sélectionner la nature" : "Sélectionnez d'abord l'axe"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {formData.axeId && CONFLICT_NATURES_BY_AXE[formData.axeId].map(nature => (
+                      <SelectItem key={nature} value={nature}>{nature}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -755,24 +781,47 @@ const OppositionsForm: React.FC = () => {
             </button>
 
             {showFilters && (
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  size="sm"
-                  variant={filterStatus === 'all' ? 'default' : 'outline'}
-                  onClick={() => setFilterStatus('all')}
-                >
-                  Tous
-                </Button>
-                {statutsOpposition.map(s => (
+              <div className="space-y-3">
+                <div className="flex gap-2 flex-wrap">
+                  <span className="text-xs text-muted-foreground self-center w-full sm:w-auto">Statut</span>
                   <Button
-                    key={s.value}
                     size="sm"
-                    variant={filterStatus === s.value ? 'default' : 'outline'}
-                    onClick={() => setFilterStatus(s.value)}
+                    variant={filterStatus === 'all' ? 'default' : 'outline'}
+                    onClick={() => setFilterStatus('all')}
                   >
-                    {s.label}
+                    Tous
                   </Button>
-                ))}
+                  {statutsOpposition.map(s => (
+                    <Button
+                      key={s.value}
+                      size="sm"
+                      variant={filterStatus === s.value ? 'default' : 'outline'}
+                      onClick={() => setFilterStatus(s.value)}
+                    >
+                      {s.label}
+                    </Button>
+                  ))}
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <span className="text-xs text-muted-foreground self-center w-full sm:w-auto">Axe</span>
+                  <Button
+                    size="sm"
+                    variant={filterAxe === '' ? 'default' : 'outline'}
+                    onClick={() => setFilterAxe('')}
+                  >
+                    Tous les axes
+                  </Button>
+                  {CONFLICT_AXES.map(axe => (
+                    <Button
+                      key={axe.id}
+                      size="sm"
+                      variant={filterAxe === axe.id ? 'default' : 'outline'}
+                      onClick={() => setFilterAxe(axe.id)}
+                    >
+                      {axe.shortLabel}
+                    </Button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -810,7 +859,14 @@ const OppositionsForm: React.FC = () => {
                       {new Date(conflict.date_reported).toLocaleDateString('fr-FR')}
                     </span>
                   </div>
-                  <h4 className="font-medium text-foreground mb-1">{conflict.nature}</h4>
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <h4 className="font-medium text-foreground">{conflict.nature}</h4>
+                    {conflict.axe && (
+                      <Badge variant="secondary" className="text-xs font-normal">
+                        {CONFLICT_AXES.find(a => a.id === conflict.axe)?.shortLabel ?? conflict.axe}
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                     {conflict.description}
                   </p>

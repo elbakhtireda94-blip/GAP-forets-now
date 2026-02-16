@@ -30,6 +30,7 @@ import AdminUnlockRequests from "./pages/AdminUnlockRequests";
 import SupabaseStatus from "./pages/SupabaseStatus";
 import NotFound from "./pages/NotFound";
 import CahierJournal from "./pages/CahierJournal";
+import PlanningIntelligent from "./pages/PlanningIntelligent";
 import UsersManagement from "./pages/UsersManagement";
 import AdminRoles from "./pages/AdminRoles";
 import AdminAccessCodes from "./pages/AdminAccessCodes";
@@ -76,6 +77,9 @@ const AppRoutes = () => {
       
       {/* Cahier Journal - All authenticated users */}
       <Route path="/cahier-journal" element={<ProtectedRoute><CahierJournal /></ProtectedRoute>} />
+      
+      {/* Planning Intelligent - Cockpit DG (all authenticated) */}
+      <Route path="/planning-intelligent" element={<ProtectedRoute><PlanningIntelligent /></ProtectedRoute>} />
       
       {/* Debug Access - ADMIN only */}
       <Route path="/debug-access" element={

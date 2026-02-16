@@ -251,16 +251,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => subscription.unsubscribe();
   }, [fetchUserProfile]);
 
-  const login = async (email: string, password: string): Promise<boolean | 'profile_error'> => {
+  const login = async (email: string, password: string): Promise<boolean | 'profile_error' | { error: string }> => {
     setIsLoading(true);
     console.log('[Auth] Login attempt for:', email, 'Backend:', useMySQLBackend() ? 'MySQL' : 'Supabase');
 
     if (useMySQLBackend()) {
       const result = await mysqlLogin(email, password);
       if ('error' in result) {
-        console.error('[Auth] Login failed:', result.error);
+        const errorMsg = result.error;
+        const isBackendUnreachable = /HTML|DOCTYPE|JSON|VITE_MYSQL|mauvais endpoint|proxy|Impossible de joindre|Failed to fetch|NetworkError|ECONNREFUSED/i.test(errorMsg);
+        const isDemoAccount = /^(demo|adp\.demo)@anef\.ma$/i.test(email);
+        
+        // Fallback vers DatabaseContext pour comptes démo si backend injoignable
+        if (isBackendUnreachable && isDemoAccount) {
+          console.log('[Auth] Backend injoignable, tentative fallback DatabaseContext pour compte démo');
+          try {
+            const dbUser = database.authenticateUser(email, password);
+            if (dbUser) {
+              // Convertir User DatabaseContext vers User RBAC
+              const scopeLevel: ScopeLevel = dbUser.role === 'admin' ? 'ADMIN' : 'LOCAL';
+              const rbacUser: User = {
+                id: dbUser.id,
+                name: dbUser.full_name,
+                email: dbUser.email,
+                role: dbUser.role,
+                scope_level: scopeLevel,
+                role_label: dbUser.role === 'admin' ? 'Admin' : 'ADP',
+                dranef_id: dbUser.dranef_id || null,
+                dpanef_id: dbUser.dpanef_id || null,
+                commune_ids: dbUser.commune_id ? [dbUser.commune_id] : [],
+                dranef: dbUser.dranef_id || '',
+                dpanef: dbUser.dpanef_id || '',
+                commune: dbUser.commune_id || '',
+              };
+              setUser(rbacUser);
+              setSession({ access_token: 'local-demo-token', user: { id: dbUser.id, email: dbUser.email } } as Session);
+              console.log('[Auth] ✓ Fallback login successful (DatabaseContext), user:', rbacUser.email);
+              setIsLoading(false);
+              return true;
+            }
+          } catch (fallbackErr) {
+            console.error('[Auth] Fallback failed:', fallbackErr);
+          }
+        }
+        
+        console.error('[Auth] Login failed:', errorMsg);
         setIsLoading(false);
-        return { error: result.error };
+        return { error: errorMsg };
       }
       const data = result;
       console.log('[Auth] Login successful, fetching profile...');

@@ -99,6 +99,28 @@
       "dranef_id": "",
       "dpanef_id": "",
       "commune_id": ""
+    },
+    {
+      "id": "U03",
+      "email": "demo@anef.ma",
+      "password": "Password1",
+      "full_name": "Démo Production (Admin)",
+      "role": "admin",
+      "region_id": "",
+      "dranef_id": "",
+      "dpanef_id": "",
+      "commune_id": ""
+    },
+    {
+      "id": "U04",
+      "email": "adp.demo@anef.ma",
+      "password": "Password1",
+      "full_name": "ADP Démo Terrain",
+      "role": "adp",
+      "region_id": "R01",
+      "dranef_id": "DR01",
+      "dpanef_id": "DP01",
+      "commune_id": "C01"
     }
   ],
   "adp": [

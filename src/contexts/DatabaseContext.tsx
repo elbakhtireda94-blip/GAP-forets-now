@@ -206,24 +206,54 @@ export interface Activity {
   attachments?: ActivityAttachmentData[];
 }
 
-// Official list of conflict natures
-export const CONFLICT_NATURES = [
-  'Privation du droit d\'usage',
-  'Opposition aux accès (points d\'eau, pistes, etc.)',
-  'Opposition aux travaux de reforestation',
-  'Conflit foncier',
-  'Exploitation illégale',
-  'Autre',
-] as const;
+// --- Trois axes ANEF pour structurer les conflits (simple pour ADP, riche pour la hiérarchie) ---
+export type ConflictAxe = 'ANEF_POPULATION' | 'POPULATION_POPULATION' | 'ANEF_INSTITUTION';
 
-export type ConflictNature = typeof CONFLICT_NATURES[number];
+export const CONFLICT_AXES: { id: ConflictAxe; label: string; shortLabel: string }[] = [
+  { id: 'ANEF_POPULATION', label: 'ANEF ↔ Population', shortLabel: 'ANEF–Population' },
+  { id: 'POPULATION_POPULATION', label: 'Population ↔ Population', shortLabel: 'Population–Population' },
+  { id: 'ANEF_INSTITUTION', label: 'ANEF ↔ Autre institution', shortLabel: 'ANEF–Institution' },
+];
+
+/** Natures par axe : l'ADP choisit d'abord l'axe, puis la nature (formulaire simple, données structurées). */
+export const CONFLICT_NATURES_BY_AXE: Record<ConflictAxe, readonly string[]> = {
+  ANEF_POPULATION: [
+    'Privation du droit d\'usage',
+    'Opposition aux accès (points d\'eau, pistes, etc.)',
+    'Opposition aux travaux de reforestation',
+    'Conflit pastoral (parcours, usage)',
+    'Exploitation illégale',
+    'Autre',
+  ],
+  POPULATION_POPULATION: [
+    'Conflit foncier',
+    'Conflit d\'usage (eau, pâturage)',
+    'Conflit tribal / inter-communautaire',
+    'Conflit familial (succession, limites)',
+    'Autre',
+  ],
+  ANEF_INSTITUTION: [
+    'Chevauchement de compétences',
+    'Litige avec autre administration',
+    'Conflit de délimitation (forêt / autre domaine)',
+    'Autre',
+  ],
+};
+
+// Liste plate de toutes les natures (compatibilité, migration, affichage)
+const _allNaturesSet = new Set<string>([
+  ...CONFLICT_NATURES_BY_AXE.ANEF_POPULATION,
+  ...CONFLICT_NATURES_BY_AXE.POPULATION_POPULATION,
+  ...CONFLICT_NATURES_BY_AXE.ANEF_INSTITUTION,
+]);
+export const CONFLICT_NATURES = Array.from(_allNaturesSet) as readonly string[];
+export type ConflictNature = string;
 
 // Migration mapping for old conflict natures to new ones
-export const CONFLICT_NATURE_MIGRATION: Record<string, ConflictNature> = {
+export const CONFLICT_NATURE_MIGRATION: Record<string, string> = {
   'Opposition à la mise en défens': 'Opposition aux travaux de reforestation',
   'Conflit pastoral': 'Privation du droit d\'usage',
   'Opposition aux travaux de reboisement': 'Opposition aux travaux de reforestation',
-  // Keep matching ones
   'Conflit foncier': 'Conflit foncier',
   'Exploitation illégale': 'Exploitation illégale',
   'Autre': 'Autre',
@@ -234,6 +264,8 @@ export interface Conflict {
   commune_id: string;
   nature: string;
   nature_other?: string; // When 'Autre' is selected, store the custom value
+  /** Axe du conflit (ANEF–Population, Population–Population, ANEF–Institution) pour reporting hiérarchie */
+  axe?: ConflictAxe;
   description: string;
   status: 'En cours' | 'Résolu' | 'Escaladé';
   severity: 'Faible' | 'Moyenne' | 'Élevée' | 'Critique';
@@ -255,8 +287,24 @@ export interface Conflict {
   updated_at?: string;
 }
 
+/** Natures considérées comme "délits forestiers" (exploitation illégale, etc.) pour le suivi des délits */
+export const NATURES_DELIT_FORESTIER: string[] = ['Exploitation illégale'];
+
+/** Indique si un conflit/signalement est un délit forestier au sens du suivi */
+export const isDelitForestier = (c: Conflict): boolean =>
+  !!(c.nature && NATURES_DELIT_FORESTIER.includes(c.nature));
+
 // === NOUVELLE ENTITÉ : Organisations structurelles ===
 export type OrganisationStatut = 'ODF' | 'Cooperative' | 'Association' | 'AGS';
+
+/** Pièce jointe d'une organisation (image, PDF, document) — stockée en base64 (dataUrl) pour le stockage local */
+export interface OrganisationDocument {
+  id: string;
+  name: string;
+  type: string; // 'image', 'pdf', 'document'
+  size: number;
+  dataUrl: string;
+}
 
 export interface OrganisationStruct {
   id: string;
@@ -264,6 +312,8 @@ export interface OrganisationStruct {
   statut: OrganisationStatut;
   date_creation: string; // ISO 'YYYY-MM-DD'
   domaines_activites: string[]; // ex: ["PFNL","Apiculture","Écotourisme"]
+  /** Images, PDF et documents attachés à l'organisation */
+  documents?: OrganisationDocument[];
   // Liaisons pour filtrage et contrôle d'accès
   region_id?: string;
   dranef_id?: string;
@@ -274,6 +324,11 @@ export interface OrganisationStruct {
   created_at?: string;
   updated_at?: string;
 }
+
+// Planning Intelligent (import types from @/types/planning)
+import type { Planning, PlanningItem } from '@/types/planning';
+
+export type { Planning, PlanningItem };
 
 export interface Database {
   regions: Region[];
@@ -286,6 +341,8 @@ export interface Database {
   activities: Activity[];
   conflicts: Conflict[];
   organisations: OrganisationStruct[];
+  plannings: Planning[];
+  planning_items: PlanningItem[];
 }
 
 interface DatabaseContextType {
@@ -347,6 +404,15 @@ interface DatabaseContextType {
   addOrganisation: (org: Omit<OrganisationStruct, 'id'>) => void;
   updateOrganisation: (id: string, updates: Partial<OrganisationStruct>) => void;
   deleteOrganisation: (id: string) => void;
+  // Planning Intelligent CRUD
+  getPlannings: () => Planning[];
+  getPlanningById: (id: string) => Planning | undefined;
+  getPlanningItems: (planningId: string) => PlanningItem[];
+  addPlanning: (p: Omit<Planning, 'id' | 'created_at' | 'updated_at'>) => void;
+  updatePlanning: (id: string, updates: Partial<Planning>) => void;
+  addPlanningItem: (item: Omit<PlanningItem, 'id'>) => void;
+  updatePlanningItem: (id: string, updates: Partial<PlanningItem>) => void;
+  deletePlanningItem: (id: string) => void;
   // Auth
   authenticateUser: (email: string, password: string) => User | null;
   // Statistics
@@ -446,17 +512,29 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         if (!parsed.organisations) {
           parsed.organisations = [];
         }
+        if (!parsed.plannings) {
+          parsed.plannings = [];
+        }
+        if (!parsed.planning_items) {
+          parsed.planning_items = [];
+        }
+        // Migration: ajouter documents: [] aux organisations existantes
+        if (parsed.organisations && Array.isArray(parsed.organisations)) {
+          parsed.organisations = parsed.organisations.map((o: OrganisationStruct) =>
+            o.documents === undefined ? { ...o, documents: [] } : o
+          );
+        }
         // AUTO-MIGRATE conflicts type field
         if (parsed.conflicts) {
           parsed.conflicts = migrateConflictsType(parsed.conflicts);
         }
         return parsed as Database;
       } catch {
-        return { ...(initialData as any), pdfc_prevus: [], pdfc_cps: [], pdfc_exec: [], organisations: [] } as Database;
+        return { ...(initialData as any), pdfc_prevus: [], pdfc_cps: [], pdfc_exec: [], organisations: [], plannings: [], planning_items: [] } as Database;
       }
     }
     // For initial data, also migrate conflicts
-    const initial = { ...(initialData as any), pdfc_prevus: [], pdfc_cps: [], pdfc_exec: [], organisations: [] } as Database;
+    const initial = { ...(initialData as any), pdfc_prevus: [], pdfc_cps: [], pdfc_exec: [], organisations: [], plannings: [], planning_items: [] } as Database;
     if (initial.conflicts) {
       initial.conflicts = migrateConflictsType(initial.conflicts);
     }
@@ -762,6 +840,106 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
     }));
   };
 
+  // Seed one demo planning for "Planning Intelligent" if none exist (runs once on mount)
+  useEffect(() => {
+    if ((data.plannings || []).length > 0) return;
+    const adp = data.adp[0];
+    if (!adp) return;
+    let dranefId = '';
+    let dpanefId = '';
+    for (const r of data.regions) {
+      for (const dr of r.dranef) {
+        dranefId = dr.id;
+        const dp = dr.dpanef[0];
+        if (dp) { dpanefId = dp.id; break; }
+        break;
+      }
+      if (dpanefId) break;
+    }
+    if (!dpanefId) return;
+    const now = new Date().toISOString();
+    const planId = generateId('PLAN');
+    const demoPlanning: Planning = {
+      id: planId,
+      month: new Date().getMonth() + 1,
+      year: new Date().getFullYear(),
+      status: 'VALIDÉ',
+      adp_id: adp.id,
+      dranef_id: dranefId,
+      dpanef_id: dpanefId,
+      created_at: now,
+      updated_at: now,
+    };
+    const communeId = data.regions[0]?.dranef[0]?.dpanef[0]?.communes[0]?.id ?? 'C01';
+    const items: PlanningItem[] = [
+      { id: generateId('PIT'), planning_id: planId, date: `${demoPlanning.year}-${String(demoPlanning.month).padStart(2, '0')}-17`, title: 'Atelier ODF Azrou', type: 'atelier', commune_id: communeId, objectives: 'Valider plan d\'action ODF', expected_deliverables: ['PV'], participants_estimated: 15, logistics: { vehicle_needed: true, vehicle_type: 'VL', fuel_liters: 25, budget_estimate: 1500 }, risk_score: 20 },
+      { id: generateId('PIT'), planning_id: planId, date: `${demoPlanning.year}-${String(demoPlanning.month).padStart(2, '0')}-20`, title: 'Médiation conflit pastoral', type: 'mediation', commune_id: communeId, distance_km_est: 80, logistics: { vehicle_needed: true, fuel_liters: 40 }, risk_score: 45 },
+      { id: generateId('PIT'), planning_id: planId, date: `${demoPlanning.year}-${String(demoPlanning.month).padStart(2, '0')}-25`, title: 'Suivi reboisement PDFCP', type: 'suivi_pdfcp', commune_id: communeId, expected_deliverables: ['PV', 'fiche projet'], logistics: { vehicle_needed: true, vehicle_type: '4x4' }, risk_score: 15 },
+    ];
+    setData(prev => ({
+      ...prev,
+      plannings: [...(prev.plannings || []), demoPlanning],
+      planning_items: [...(prev.planning_items || []), ...items],
+    }));
+  }, [data.plannings?.length, data.adp?.length, data.regions?.length]); // run when structure ready, only if plannings empty
+
+  // Planning Intelligent CRUD
+  const getPlannings = (): Planning[] => data.plannings || [];
+  const getPlanningById = (id: string): Planning | undefined =>
+    (data.plannings || []).find(p => p.id === id);
+  const getPlanningItems = (planningId: string): PlanningItem[] =>
+    (data.planning_items || []).filter(i => i.planning_id === planningId);
+
+  const addPlanning = (p: Omit<Planning, 'id' | 'created_at' | 'updated_at'>) => {
+    const now = new Date().toISOString();
+    const newPlanning: Planning = {
+      ...p,
+      id: generateId('PLAN'),
+      created_at: now,
+      updated_at: now,
+    };
+    setData(prev => ({
+      ...prev,
+      plannings: [...(prev.plannings || []), newPlanning],
+    }));
+  };
+
+  const updatePlanning = (id: string, updates: Partial<Planning>) => {
+    setData(prev => ({
+      ...prev,
+      plannings: (prev.plannings || []).map(p =>
+        p.id === id ? { ...p, ...updates, updated_at: new Date().toISOString() } : p
+      ),
+    }));
+  };
+
+  const addPlanningItem = (item: Omit<PlanningItem, 'id'>) => {
+    const newItem: PlanningItem = {
+      ...item,
+      id: generateId('PIT'),
+    };
+    setData(prev => ({
+      ...prev,
+      planning_items: [...(prev.planning_items || []), newItem],
+    }));
+  };
+
+  const updatePlanningItem = (id: string, updates: Partial<PlanningItem>) => {
+    setData(prev => ({
+      ...prev,
+      planning_items: (prev.planning_items || []).map(i =>
+        i.id === id ? { ...i, ...updates } : i
+      ),
+    }));
+  };
+
+  const deletePlanningItem = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      planning_items: (prev.planning_items || []).filter(i => i.id !== id),
+    }));
+  };
+
   // Auth
   const authenticateUser = (email: string, password: string): User | null => {
     const user = data.users.find(
@@ -879,6 +1057,14 @@ export const DatabaseProvider: React.FC<{ children: ReactNode }> = ({ children }
         addOrganisation,
         updateOrganisation,
         deleteOrganisation,
+        getPlannings,
+        getPlanningById,
+        getPlanningItems,
+        addPlanning,
+        updatePlanning,
+        addPlanningItem,
+        updatePlanningItem,
+        deletePlanningItem,
         authenticateUser,
         getStats,
       }}

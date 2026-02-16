@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, Users, FileText, Activity, AlertTriangle, User, Building2, Settings, Bug, Unlock, BookOpen, UserCog, Server, Shield, KeyRound } from 'lucide-react';
+import { BarChart3, Users, FileText, Activity, AlertTriangle, User, Building2, Settings, Bug, Unlock, BookOpen, UserCog, Server, Shield, KeyRound, CalendarCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { MenuKey } from '@/lib/rbac';
@@ -33,6 +33,14 @@ const allMenuItems: MenuItem[] = [
     icon: BarChart3,
     path: '/dashboard',
     description: 'Vue d\'ensemble et statistiques',
+  },
+  {
+    id: 'planning',
+    menuKey: 'planning_intelligent',
+    title: 'Planning Intelligent',
+    icon: CalendarCheck,
+    path: '/planning-intelligent',
+    description: 'Cockpit DG – Aide à la décision et dossier de synthèse',
   },
   {
     id: 'pdfc',

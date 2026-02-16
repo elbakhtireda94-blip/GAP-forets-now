@@ -22,8 +22,8 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const app = express();
 const isDev = process.env.NODE_ENV !== 'production';
-// In dev, force PORT=3002 (no fallback). In production, use PORT env or default 3001
-const PORT = isDev ? (Number(process.env.PORT) || 3002) : (Number(process.env.PORT) || 3001);
+// Port fixe 3002 en dev (backend démo). En prod: PORT env ou 3001
+const PORT = isDev ? 3002 : (Number(process.env.PORT) || 3001);
 const CORS_ORIGIN = process.env.CORS_ORIGIN || (isDev ? 'http://localhost:8084' : 'http://localhost:8080');
 
 // CORS dev: explicit origins for front (Vite peut utiliser 8080-8087 si ports occupés)
@@ -71,12 +71,10 @@ const allowedOrigins = [
   'http://192.168.11.104:5173',
 ];
 const corsOptions = {
-  origin: isDev
-    ? true
-    : (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-        return callback(null, false);
-      },
+  origin: isDev ? true : (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(null, false);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -178,6 +176,7 @@ function tryListen(port) {
   return new Promise((resolve, reject) => {
     // Bind on 0.0.0.0 to allow network access (not just localhost)
     const server = app.listen(port, '0.0.0.0', () => {
+      console.log(`API running on http://0.0.0.0:${port}`);
       const localUrl = `http://localhost:${port}`;
       // Try to detect network IP
       const interfaces = os.networkInterfaces();
@@ -237,29 +236,16 @@ async function start() {
   console.log('');
 
   if (isDev) {
-    // In dev: try PORT then 3004, 3005, 3006 si occupé
-    const fallbacks = [3004, 3005, 3006].filter((f) => f !== PORT);
-    const portsToTry = [PORT, ...fallbacks];
-    let listened = false;
-    for (const p of portsToTry) {
-      try {
-        await tryListen(p);
-        listened = true;
-        if (p !== PORT) {
-          console.warn(`\n⚠️ Port ${PORT} was in use. API is running on http://localhost:${p}`);
-          console.warn(`   Update root .env: VITE_MYSQL_API_URL=http://localhost:${p}\n`);
-        }
-        break;
-      } catch (err) {
-        if (err.code === 'EADDRINUSE' && p !== portsToTry[portsToTry.length - 1]) {
-          console.warn(`Port ${p} in use, trying next...`);
-        } else {
-          console.error(`❌ Port ${p} in use. Free a port or set PORT=3005 (or 3006) in server/.env`);
-          process.exit(1);
-        }
+    try {
+      await tryListen(PORT);
+    } catch (err) {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use. Stop the other process or free port ${PORT}.`);
+      } else {
+        console.error('Server failed to start:', err);
       }
+      process.exit(1);
     }
-    if (!listened) process.exit(1);
   } else {
     // In production: try PORT, then 3002, 3003 on EADDRINUSE
     const portsToTry = [PORT, 3002, 3003].filter((p, i, a) => a.indexOf(p) === i);

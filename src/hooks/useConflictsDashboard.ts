@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useDatabase, Conflict } from '@/contexts/DatabaseContext';
+import { useDatabase, Conflict, isDelitForestier, type ConflictAxe } from '@/contexts/DatabaseContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { isOpposition, isResolved } from '@/hooks/useConflictsMetrics';
 
@@ -13,6 +13,7 @@ export interface ConflictsDashboardFilters {
   commune?: string;
   adp?: string;
   type?: 'all' | 'Conflit' | 'Opposition';
+  axe?: 'all' | ConflictAxe;
   status?: string;
   severity?: string;
 }
@@ -76,6 +77,16 @@ export interface ConflictsDashboardMetrics {
   oppositionsLevees: number;
   superficieOpposition: number;
   superficieLevee: number;
+
+  // Suivi des délits forestiers + contribution approche participative
+  totalDelits: number;
+  delitsEnZonesParticipatives: number;
+  delitsEnZonesSansParticipatif: number;
+  /** Réduction estimée (%) des délits en zones à approche participative (ODF/coop.) vs zones sans. Null si calcul non significatif. */
+  contributionApprocheParticipative: number | null;
+  /** Nombre de communes avec au moins une org (ODF, coop.) dans le périmètre */
+  nbCommunesAvecApprocheParticipative: number;
+  nbCommunesSansApprocheParticipative: number;
   
   // Chart data
   monthlyData: MonthlyDataPoint[];
@@ -176,6 +187,11 @@ export const useConflictsDashboard = (filters: ConflictsDashboardFilters) => {
       conflictsList = conflictsList.filter(c => c.severity === filters.severity);
     }
 
+    // 8. Apply axe filter (ANEF–Population, Population–Population, ANEF–Institution)
+    if (filters.axe && filters.axe !== 'all') {
+      conflictsList = conflictsList.filter(c => c.axe === filters.axe);
+    }
+
     // Calculate KPIs
     const totalConflits = conflictsList.length;
     const oppositions = conflictsList.filter(isOpposition);
@@ -190,6 +206,34 @@ export const useConflictsDashboard = (filters: ConflictsDashboardFilters) => {
     const oppositionsLevees = oppositions.filter(isResolved).length;
     const superficieOpposition = oppositions.reduce((sum, c) => sum + (c.superficie_opposee_ha || 0), 0);
     const superficieLevee = oppositions.filter(isResolved).reduce((sum, c) => sum + (c.superficie_opposee_ha || 0), 0);
+
+    // Suivi des délits forestiers (natures = Exploitation illégale, etc.)
+    const delits = conflictsList.filter(isDelitForestier);
+    const totalDelits = delits.length;
+
+    // Communes à approche participative = communes ayant au moins une organisation (ODF, Coopérative, etc.)
+    const communesAvecOrg = new Set<string>(
+      (data.organisations || []).filter(o => o.commune_id).map(o => o.commune_id!)
+    );
+    const delitsEnZonesParticipatives = delits.filter(c => communesAvecOrg.has(c.commune_id)).length;
+    const delitsEnZonesSansParticipatif = totalDelits - delitsEnZonesParticipatives;
+
+    // Communes dans le périmètre (filtré) : déduire des conflits pour avoir le dénominateur
+    const communesDansPerimetre = new Set(conflictsList.map(c => c.commune_id));
+    const nbCommunesAvecApprocheParticipative = [...communesDansPerimetre].filter(id => communesAvecOrg.has(id)).length;
+    const nbCommunesSansApprocheParticipative = communesDansPerimetre.size - nbCommunesAvecApprocheParticipative;
+
+    // Contribution approche participative : réduction relative du "taux de délits" (délits/commune) en zones avec ODF vs sans.
+    // Formule : Réduction = (1 - (délits_p / max(1,nb_communes_p)) / (délits_s / max(1,nb_communes_s))) * 100
+    let contributionApprocheParticipative: number | null = null;
+    const tauxDenomSans = delitsEnZonesSansParticipatif / Math.max(1, nbCommunesSansApprocheParticipative);
+    const tauxDenomPart = delitsEnZonesParticipatives / Math.max(1, nbCommunesAvecApprocheParticipative);
+    if (tauxDenomSans > 0 && (delitsEnZonesParticipatives > 0 || delitsEnZonesSansParticipatif > 0)) {
+      const tauxPart = tauxDenomPart;
+      const tauxSans = tauxDenomSans;
+      contributionApprocheParticipative = Math.round((1 - tauxPart / tauxSans) * 100);
+      contributionApprocheParticipative = Math.max(-999, Math.min(999, contributionApprocheParticipative));
+    }
 
     // Monthly data (last 6 months)
     const now = new Date();
@@ -284,6 +328,12 @@ export const useConflictsDashboard = (filters: ConflictsDashboardFilters) => {
       oppositionsLevees,
       superficieOpposition,
       superficieLevee,
+      totalDelits,
+      delitsEnZonesParticipatives,
+      delitsEnZonesSansParticipatif,
+      contributionApprocheParticipative,
+      nbCommunesAvecApprocheParticipative,
+      nbCommunesSansApprocheParticipative,
       monthlyData,
       statusDistribution,
       topCommunes,

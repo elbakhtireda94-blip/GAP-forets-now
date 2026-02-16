@@ -15,6 +15,9 @@ import {
   Building2,
   FileText,
   AlertOctagon,
+  ShieldAlert,
+  Users,
+  Info,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +37,7 @@ import {
   ChartConfig,
 } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, Legend } from 'recharts';
-import { useDatabase } from '@/contexts/DatabaseContext';
+import { useDatabase, CONFLICT_AXES } from '@/contexts/DatabaseContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useConflictsDashboard, ConflictsDashboardFilters, PriorityCase } from '@/hooks/useConflictsDashboard';
 import { cn } from '@/lib/utils';
@@ -70,6 +73,7 @@ const ConflictsDashboard: React.FC<ConflictsDashboardProps> = ({ onViewConflict 
     commune: 'all',
     adp: 'all',
     type: 'all',
+    axe: 'all',
     status: 'all',
     severity: 'all',
   });
@@ -152,6 +156,7 @@ const ConflictsDashboard: React.FC<ConflictsDashboardProps> = ({ onViewConflict 
       commune: 'all',
       adp: 'all',
       type: 'all',
+      axe: 'all',
       status: 'all',
       severity: 'all',
     });
@@ -299,6 +304,22 @@ const ConflictsDashboard: React.FC<ConflictsDashboardProps> = ({ onViewConflict 
                 </Select>
               </div>
 
+              {/* Axe (ANEF–Population, Population–Population, ANEF–Institution) */}
+              <div>
+                <Label className="text-xs mb-1 block">Axe</Label>
+                <Select value={filters.axe ?? 'all'} onValueChange={v => updateFilter('axe', v)}>
+                  <SelectTrigger className="h-8 text-xs bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="all">Tous</SelectItem>
+                    {CONFLICT_AXES.map(axe => (
+                      <SelectItem key={axe.id} value={axe.id}>{axe.shortLabel}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Status */}
               <div>
                 <Label className="text-xs mb-1 block">Statut</Label>
@@ -415,6 +436,80 @@ const ConflictsDashboard: React.FC<ConflictsDashboardProps> = ({ onViewConflict 
               <span className="text-xs text-muted-foreground font-medium">Taux résolution</span>
             </div>
             <div className="text-2xl font-bold text-primary">{metrics.tauxResolution}%</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Suivi des délits forestiers + Contribution approche participative */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <Card className="bg-card border-border/50 border-l-4 border-l-rose-500">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="bg-rose-500/10 rounded-lg p-1.5">
+                <ShieldAlert className="h-4 w-4 text-rose-600" />
+              </div>
+              <span className="text-xs text-muted-foreground font-medium">Suivi des délits</span>
+            </div>
+            <div className="text-2xl font-bold text-rose-600">{metrics.totalDelits}</div>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Délits forestiers (ex. exploitation illégale)
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border-border/50 border-l-4 border-l-emerald-600">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="bg-emerald-500/10 rounded-lg p-1.5">
+                <Users className="h-4 w-4 text-emerald-600" />
+              </div>
+              <span className="text-xs text-muted-foreground font-medium">Contribution approche participative</span>
+            </div>
+            {metrics.contributionApprocheParticipative !== null ? (
+              <>
+                <div className="text-2xl font-bold text-emerald-600">
+                  {metrics.contributionApprocheParticipative > 0
+                    ? `−${metrics.contributionApprocheParticipative} %`
+                    : `${metrics.contributionApprocheParticipative} %`}
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Réduction estimée des délits en zones ODF/coop. vs zones sans
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="text-lg font-semibold text-muted-foreground">—</div>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Données insuffisantes (délits ou communes avec/sans ODF)
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="p-3">
+            <div className="flex items-start gap-2">
+              <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p className="font-medium text-foreground">Relation logique</p>
+                <p>
+                  Délits en zones avec ODF/coop. : <strong>{metrics.delitsEnZonesParticipatives}</strong>
+                  {metrics.nbCommunesAvecApprocheParticipative >= 0 && (
+                    <span> ({metrics.nbCommunesAvecApprocheParticipative} comm. avec org.)</span>
+                  )}
+                </p>
+                <p>
+                  Délits en zones sans : <strong>{metrics.delitsEnZonesSansParticipatif}</strong>
+                  {metrics.nbCommunesSansApprocheParticipative >= 0 && (
+                    <span> ({metrics.nbCommunesSansApprocheParticipative} comm. sans)</span>
+                  )}
+                </p>
+                <p>
+                  La contribution est le % de réduction du taux (délits/commune) en zones à approche participative par rapport aux zones sans.
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

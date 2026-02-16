@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Users, TreePine, Briefcase, Plus, Pencil, Trash2, Search } from 'lucide-react';
+import { ArrowLeft, Building2, Users, TreePine, Briefcase, Plus, Pencil, Trash2, Search, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,10 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useDatabase, OrganisationStruct, OrganisationStatut } from '@/contexts/DatabaseContext';
+import { useDatabase, OrganisationStruct, OrganisationStatut, OrganisationDocument } from '@/contexts/DatabaseContext';
 import { useAuth } from '@/contexts/AuthContext';
 import BottomNav from '@/components/BottomNav';
 import KPICard from '@/components/KPICard';
+import { OrganisationDocumentsUploader } from '@/components/organisations/OrganisationDocumentsUploader';
 import { toast } from '@/hooks/use-toast';
 
 const STATUTS: OrganisationStatut[] = ['ODF', 'Cooperative', 'Association', 'AGS'];
@@ -73,6 +74,7 @@ const OrganisationsStructurelles: React.FC = () => {
   const [formDateCreation, setFormDateCreation] = useState('');
   const [formDomaines, setFormDomaines] = useState('');
   const [formAdpId, setFormAdpId] = useState('');
+  const [formDocuments, setFormDocuments] = useState<OrganisationDocument[]>([]);
 
   const allOrganisations = getOrganisations();
   const regions = getRegions();
@@ -170,6 +172,7 @@ const OrganisationsStructurelles: React.FC = () => {
     setFormDateCreation('');
     setFormDomaines('');
     setFormAdpId('');
+    setFormDocuments([]);
     setEditingOrg(null);
   };
 
@@ -189,6 +192,7 @@ const OrganisationsStructurelles: React.FC = () => {
     setFormDateCreation(org.date_creation || '');
     setFormDomaines(org.domaines_activites.join(', '));
     setFormAdpId(org.adp_id || '');
+    setFormDocuments(org.documents || []);
     setIsDialogOpen(true);
   };
 
@@ -216,6 +220,7 @@ const OrganisationsStructurelles: React.FC = () => {
         statut: formStatut,
         date_creation: formDateCreation || undefined,
         domaines_activites: domainesArray,
+        documents: formDocuments,
         adp_id: selectedAdpId || undefined,
         dranef_id: selectedAdp?.dranef_id || editingOrg.dranef_id,
         dpanef_id: selectedAdp?.dpanef_id || editingOrg.dpanef_id,
@@ -230,6 +235,7 @@ const OrganisationsStructurelles: React.FC = () => {
         statut: formStatut,
         date_creation: formDateCreation || new Date().toISOString().slice(0, 10),
         domaines_activites: domainesArray,
+        documents: formDocuments,
         adp_id: selectedAdpId || undefined,
         dranef_id: selectedAdp?.dranef_id,
         dpanef_id: selectedAdp?.dpanef_id,
@@ -455,6 +461,11 @@ const OrganisationsStructurelles: React.FC = () => {
                       <p className="text-xs text-muted-foreground">Séparez les domaines par des virgules</p>
                     </div>
 
+                    <OrganisationDocumentsUploader
+                      documents={formDocuments}
+                      onChange={setFormDocuments}
+                    />
+
                     {/* ADP Selection - Only for Admin */}
                     {isAdmin && (
                       <div className="space-y-2">
@@ -515,6 +526,7 @@ const OrganisationsStructurelles: React.FC = () => {
                       <TableHead>Statut</TableHead>
                       <TableHead>Date création</TableHead>
                       <TableHead>Domaines d'activités</TableHead>
+                      <TableHead className="w-[80px]">Documents</TableHead>
                       {isAdmin && <TableHead>ADP</TableHead>}
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -546,6 +558,16 @@ const OrganisationsStructurelles: React.FC = () => {
                                   </Badge>
                                 )}
                               </div>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {(org.documents && org.documents.length > 0) ? (
+                              <Badge variant="secondary" className="gap-1">
+                                <Paperclip className="h-3 w-3" />
+                                {org.documents.length}
+                              </Badge>
                             ) : (
                               <span className="text-muted-foreground">-</span>
                             )}

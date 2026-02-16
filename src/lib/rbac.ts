@@ -17,6 +17,7 @@ export type RoleLabel =
 // Menu item keys
 export type MenuKey =
   | 'dashboard'
+  | 'planning_intelligent'
   | 'gestion_adp'
   | 'pdfcp'
   | 'organisations'
@@ -35,6 +36,7 @@ export type MenuKey =
 // Menu access configuration
 export const MENU_ACCESS: Record<MenuKey, ScopeLevel[]> = {
   dashboard: ['ADMIN', 'NATIONAL', 'REGIONAL', 'PROVINCIAL', 'LOCAL'],
+  planning_intelligent: ['ADMIN', 'NATIONAL', 'REGIONAL', 'PROVINCIAL', 'LOCAL'],
   gestion_adp: ['ADMIN', 'NATIONAL', 'REGIONAL', 'PROVINCIAL'],
   pdfcp: ['ADMIN', 'NATIONAL', 'REGIONAL', 'PROVINCIAL', 'LOCAL'],
   organisations: ['ADMIN', 'NATIONAL', 'REGIONAL', 'PROVINCIAL', 'LOCAL'],

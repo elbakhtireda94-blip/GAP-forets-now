@@ -94,7 +94,7 @@ L'application est accessible sur `http://localhost:8080`.
 Pour utiliser une base MySQL au lieu de Supabase :
 
 1. Créer la base et exécuter les schémas dans `supabase/schema-mysql.sql` puis `supabase/schema-mysql-auth.sql`.
-2. Démarrer l’API Node.js : `cd server && npm install && npm run dev` (voir `server/README.md`).
+2. Démarrer l'API Node.js : `cd server && npm install && npm run dev` (voir `server/README.md`).
 3. Dans le `.env` du projet frontend, ajouter :
    - `VITE_USE_MYSQL_BACKEND=true`
    - `VITE_MYSQL_API_URL=http://localhost:3001`
@@ -145,7 +145,7 @@ La migration `20260211120000_seed_pdfcp_demo_data.sql` insère **6 programmes PD
    ```bash
    SUPABASE_SERVICE_ROLE_KEY=eyJ...  # la clé copiée
    ```
-   (Si `VITE_SUPABASE_URL` n’est pas dans `.env`, l’ajouter aussi avec l’URL du projet.)
+   (Si `VITE_SUPABASE_URL` n'est pas dans `.env`, l'ajouter aussi avec l'URL du projet.)
 3. À la racine du projet, exécuter :
    ```bash
    npm run seed:pdfcp

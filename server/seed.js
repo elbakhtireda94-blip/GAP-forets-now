@@ -409,10 +409,26 @@ async function run() {
         dpanef_id_profile: 'DPANEF-RABAT',
         commune_ids: ['COM-RABAT-02']
       },
-      // Comptes démo production expérimentale (accès rapide tous rôles)
+      // DPANEF Kénitra (pour bouton démo DPANEF, cohérent avec adp.demo)
+      {
+        email: 'dpanef.ken@anef.ma',
+        full_name: 'DPANEF Démo Kénitra',
+        role: 'PROVINCIAL',
+        role_id: 'ROLE-DPANEF',
+        region_id: 'REG-04',
+        dranef_id: 'DRANEF-RSK',
+        dpanef_id: 'DPANEF-KEN',
+        commune_id: null,
+        role_label: 'DPANEF',
+        scope_level: 'PROVINCIAL',
+        dranef_id_profile: 'DRANEF-RSK',
+        dpanef_id_profile: 'DPANEF-KEN',
+        commune_ids: []
+      },
+      // Comptes démo production (accès rapide tous rôles) — mot de passe: Password1
       {
         email: 'demo@anef.ma',
-        full_name: 'Compte Démo Production',
+        full_name: 'Démo Admin',
         role: 'ADMIN',
         role_id: 'ROLE-ADMIN',
         region_id: null,
@@ -421,6 +437,21 @@ async function run() {
         commune_id: null,
         role_label: 'ADMIN',
         scope_level: 'ADMIN',
+        dranef_id_profile: null,
+        dpanef_id_profile: null,
+        commune_ids: []
+      },
+      {
+        email: 'demo.dg@anef.ma',
+        full_name: 'Démo DG',
+        role: 'NATIONAL',
+        role_id: 'ROLE-DRANEF',
+        region_id: null,
+        dranef_id: null,
+        dpanef_id: null,
+        commune_id: null,
+        role_label: 'DG',
+        scope_level: 'NATIONAL',
         dranef_id_profile: null,
         dpanef_id_profile: null,
         commune_ids: []
@@ -514,10 +545,11 @@ async function run() {
     console.log('\n✅ DEMO environment seeded successfully!\n');
     console.log('📝 CONNEXION — Mot de passe pour TOUS les comptes: ' + PASSWORD);
     console.log('   (respecter la majuscule: P dans Password1)\n');
-    console.log('   ADMIN:     admin@anef.ma  |  demo@anef.ma (démo production)');
+    console.log('   ADMIN:     demo@anef.ma  |  admin@anef.ma');
+    console.log('   DG:        demo.dg@anef.ma');
     console.log('   DRANEF:    dranef.rsk@anef.ma  |  dranef.bmk@anef.ma');
-    console.log('   DPANEF:    dpanef.rabat@anef.ma  |  dpanef.bm@anef.ma');
-    console.log('   ADP:       adp.temara@anef.ma  |  adp.kasba@anef.ma  |  adp.demo@anef.ma\n');
+    console.log('   DPANEF:    dpanef.ken@anef.ma  |  dpanef.rabat@anef.ma  |  dpanef.bm@anef.ma');
+    console.log('   ADP:       adp.demo@anef.ma  |  adp.temara@anef.ma  |  adp.kasba@anef.ma\n');
     console.log('➜ Voir docs/COMPTES_DEMO_PRODUCTION_EXPERIMENTALE.md pour la liste complète.\n');
     console.log('➜ Redémarre le backend (npm run dev) puis connecte-toi.\n');
 

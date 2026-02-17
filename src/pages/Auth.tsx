@@ -28,7 +28,7 @@ const Auth: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
-  const [showDemoPanel, setShowDemoPanel] = useState(false);
+  const [showDemoPanel, setShowDemoPanel] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [resetSent, setResetSent] = useState(false);
   
@@ -114,11 +114,11 @@ const Auth: React.FC = () => {
       } else if (typeof result === 'object' && result?.error) {
         console.error('[Auth Page] Login failed:', result.error);
         const msg = result.error;
-        const isBackendUnreachable = /HTML|DOCTYPE|JSON|VITE_MYSQL|mauvais endpoint|proxy/i.test(msg);
+        const isBackendUnreachable = /Backend temporairement indisponible|HTML|DOCTYPE|JSON|VITE_MYSQL|mauvais endpoint|proxy/i.test(msg);
         toast({
-          title: isBackendUnreachable ? 'Backend injoignable' : 'Erreur de connexion',
+          title: isBackendUnreachable ? 'Backend temporairement indisponible' : 'Erreur de connexion',
           description: isBackendUnreachable
-            ? `Vérifiez VITE_MYSQL_API_URL dans .env (ex: http://192.168.11.104:3002) et que le serveur tourne (cd server && npm run dev). ${msg.substring(0, 120)}…`
+            ? 'Démarrez le serveur : cd server && npm run dev. Vérifiez .env : VITE_MYSQL_API_URL=http://localhost:3002'
             : msg.length > 200 ? msg.substring(0, 200) + '…' : msg,
           variant: 'destructive',
         });
@@ -256,11 +256,11 @@ const Auth: React.FC = () => {
         });
       } else if (typeof result === 'object' && result?.error) {
         const msg = result.error;
-        const isBackendUnreachable = /HTML|DOCTYPE|JSON|VITE_MYSQL|mauvais endpoint|proxy|Impossible de joindre|Failed to fetch/i.test(msg);
+        const isBackendUnreachable = /Backend temporairement indisponible|HTML|DOCTYPE|JSON|VITE_MYSQL|mauvais endpoint|proxy|Impossible de joindre|Failed to fetch/i.test(msg);
         toast({
-          title: isBackendUnreachable ? 'Backend démo injoignable' : 'Compte démo indisponible',
+          title: isBackendUnreachable ? 'Backend temporairement indisponible' : 'Compte démo indisponible',
           description: isBackendUnreachable
-            ? (msg.length > 200 ? msg : `Vérifiez VITE_MYSQL_API_URL dans .env à la racine (ex: http://192.168.11.104:3002) et que le serveur tourne (cd server && npm run dev).`)
+            ? 'Démarrez le serveur dans un terminal : cd server && npm run dev. Vérifiez aussi .env : VITE_MYSQL_API_URL=http://localhost:3002'
             : msg.length > 180 ? msg.substring(0, 180) + '…' : msg,
           variant: 'destructive',
         });
@@ -498,56 +498,58 @@ const Auth: React.FC = () => {
               </div>
             </div>
 
-            {/* Demo Panel — DEV only */}
-            {import.meta.env.DEV && (
-              <div className="bg-card/90 backdrop-blur-xl rounded-2xl border border-border/50 shadow-card overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setShowDemoPanel(!showDemoPanel)}
-                  className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-muted/30 transition-colors"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Monitor className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-semibold text-foreground">Mode démonstration</span>
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
-                      DEV
-                    </Badge>
-                  </div>
-                  {showDemoPanel ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                </button>
+            {/* Comptes de démonstration — visible sur la page d'accueil pour présentation */}
+            <div className="bg-card/90 backdrop-blur-xl rounded-2xl border border-primary/30 shadow-card overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowDemoPanel(!showDemoPanel)}
+                className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Monitor className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">Comptes pour la démonstration</span>
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
+                    Présentation
+                  </Badge>
+                </div>
+                {showDemoPanel ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+              </button>
 
-                {showDemoPanel && (
-                  <div className="px-5 pb-5 space-y-3">
-                    <p className="text-xs text-muted-foreground">
-                      Comptes démo production (mot de passe : Password1).
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {DEMO_ACCOUNTS.map((account) => (
-                        <Button
-                          key={account.id}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={!!demoLoading}
-                          onClick={() => handleDemoLogin(account.id)}
-                          className="h-auto py-3 px-3 flex flex-col items-start gap-1 text-left hover:bg-primary/5 hover:border-primary/30 transition-all"
-                        >
-                          {demoLoading === account.id ? (
-                            <span className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto" />
-                          ) : (
-                            <>
-                              <span className="text-lg leading-none">{account.icon}</span>
-                              <span className="text-xs font-semibold text-foreground">{account.label}</span>
-                              <span className="text-[10px] text-muted-foreground leading-tight">{account.description}</span>
-                            </>
-                          )}
-                        </Button>
-                      ))}
-                    </div>
+              {showDemoPanel && (
+                <div className="px-5 pb-5 space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Cliquez sur un compte pour vous connecter. <strong>Mot de passe commun : Password1</strong>
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {DEMO_ACCOUNTS.map((account) => (
+                      <Button
+                        key={account.id}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!!demoLoading}
+                        onClick={() => handleDemoLogin(account.id)}
+                        className="h-auto py-4 px-4 flex flex-col items-start gap-1.5 text-left hover:bg-primary/10 hover:border-primary/50 transition-all border-2"
+                      >
+                        {demoLoading === account.id ? (
+                          <span className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto" />
+                        ) : (
+                          <>
+                            <span className="text-xl leading-none">{account.icon}</span>
+                            <span className="text-sm font-semibold text-foreground">{account.label}</span>
+                            <span className="text-xs text-muted-foreground leading-tight font-mono">{account.email}</span>
+                            <span className="text-[10px] text-muted-foreground leading-tight">{account.description}</span>
+                          </>
+                        )}
+                      </Button>
+                    ))}
                   </div>
-                )}
-              </div>
-            )}
+                  <p className="text-xs text-muted-foreground pt-1">
+                    Ces comptes nécessitent un backend déployé (MySQL). En local : <code className="bg-muted px-1 rounded">cd server && npm run dev</code>
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </main>
 

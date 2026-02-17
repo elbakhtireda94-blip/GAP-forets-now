@@ -22,8 +22,8 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const app = express();
 const isDev = process.env.NODE_ENV !== 'production';
-// Port fixe 3002 en dev (backend démo). En prod: PORT env ou 3001
-const PORT = isDev ? 3002 : (Number(process.env.PORT) || 3001);
+// Port: server/.env PORT ou 3002 par défaut (aligné avec VITE_MYSQL_API_URL)
+const PORT = Number(process.env.PORT) || 3002;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || (isDev ? 'http://localhost:8084' : 'http://localhost:8080');
 
 // CORS dev: explicit origins for front (Vite peut utiliser 8080-8087 si ports occupés)
@@ -176,6 +176,7 @@ function tryListen(port) {
   return new Promise((resolve, reject) => {
     // Bind on 0.0.0.0 to allow network access (not just localhost)
     const server = app.listen(port, '0.0.0.0', () => {
+      console.log(`\n✅ Backend running on PORT ${port}`);
       console.log(`API running on http://0.0.0.0:${port}`);
       const localUrl = `http://localhost:${port}`;
       // Try to detect network IP
@@ -240,7 +241,9 @@ async function start() {
       await tryListen(PORT);
     } catch (err) {
       if (err.code === 'EADDRINUSE') {
-        console.error(`❌ Port ${PORT} is already in use. Stop the other process or free port ${PORT}.`);
+        console.error(`\n❌ Backend not running on PORT ${PORT}`);
+        console.error(`   Port ${PORT} is already in use. Stop the other process or free port ${PORT}.`);
+        console.error(`   Start backend with: cd server && npm run dev\n`);
       } else {
         console.error('Server failed to start:', err);
       }

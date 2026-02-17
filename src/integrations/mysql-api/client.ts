@@ -100,9 +100,9 @@ export async function request<T = unknown>(
     if (!contentType.includes('application/json')) {
       const snippet = text.trim().substring(0, 80);
       const port = base.split(':').pop() || '3002';
-      const msg = `Le serveur a renvoyé du HTML au lieu de JSON (mauvais endpoint ou proxy).\n\nURL: ${url}\nBase URL: ${base}\nEndpoint: ${path}\nPort attendu: ${port}\n\n💡 Vérifiez:\n- Le serveur MySQL API est démarré sur le port ${port}\n- L'URL de base est correcte: ${base}\n- CORS est configuré correctement\n- Le endpoint existe: ${path}\n\nDébut réponse: ${snippet}${snippet.length >= 80 ? '...' : ''}`;
-      console.error(`${logPrefix} ${msg}`);
-      return { data: null, error: { message: msg } };
+      const detailMsg = `Le serveur a renvoyé du HTML au lieu de JSON (mauvais endpoint ou proxy). URL: ${url} Port attendu: ${port}. Début réponse: ${snippet}${snippet.length >= 80 ? '...' : ''}`;
+      console.error(`${logPrefix} ${detailMsg}`);
+      return { data: null, error: { message: 'Backend temporairement indisponible. Vérifiez que le serveur tourne sur le port ' + port + ' (cd server && npm run dev).' } };
     }
 
     let data: unknown = null;
@@ -130,14 +130,16 @@ export async function request<T = unknown>(
     return { data: data as T, error: null };
   } catch (e) {
     const err = e as Error;
+    const base = getMySQLApiUrl();
+    const port = base.split(':').pop() || '3002';
     console.error(`${logPrefix} Fetch error:`, err);
-    let message = err.message || 'Network error';
-    if (message === 'Failed to fetch' || message.toLowerCase().includes('network')) {
-      const base = getMySQLApiUrl();
-      const host = typeof window !== 'undefined' ? window.location.host : '';
-      message = `Impossible de joindre le backend (${base}). Vérifiez dans .env à la racine du projet : VITE_MYSQL_API_URL=http://${host.split(':')[0] || '192.168.11.104'}:3002 et que le serveur tourne (cd server && npm run dev).`;
-    }
-    return { data: null, error: { message } };
+    console.error(`[API] Backend not running on PORT ${port} — start with: cd server && npm run dev`);
+    // Message utilisateur court (ne pas bloquer l'app)
+    const userMessage =
+      'Failed to fetch' === err.message || /network|fetch/i.test(err.message || '')
+        ? 'Backend temporairement indisponible. Démarrez le serveur : cd server && npm run dev'
+        : err.message || 'Backend temporairement indisponible';
+    return { data: null, error: { message: userMessage } };
   }
 }
 

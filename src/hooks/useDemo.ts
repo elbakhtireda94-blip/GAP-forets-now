@@ -1,5 +1,5 @@
 /**
- * useDemo — Détecte les comptes démo (demo@anef.ma, adp.demo@anef.ma).
+ * useDemo — Comptes démo : ADMIN, DG, DRANEF, DPANEF, ADP (voir DEMO_ACCOUNTS).
  * Mot de passe commun : Password1
  *
  * isDemoReadonly est à false : les comptes démo ont accès en saisie
@@ -14,19 +14,46 @@ export const DEMO_PASSWORD = 'Password1';
 
 export const DEMO_ACCOUNTS = [
   {
-    id: 'demo-production',
-    label: 'Démo Production (Admin)',
+    id: 'demo-admin',
+    label: 'Démo ADMIN',
     icon: '👔',
-    description: 'Accès complet pour les tests',
+    description: 'Accès complet administrateur',
     email: 'demo@anef.ma',
     password: DEMO_PASSWORD,
     scope: 'ADMIN' as const,
   },
   {
-    id: 'adp-demo',
-    label: 'ADP Démo Terrain',
+    id: 'demo-dg',
+    label: 'Démo DG',
+    icon: '🏛️',
+    description: 'Direction générale (niveau national)',
+    email: 'demo.dg@anef.ma',
+    password: DEMO_PASSWORD,
+    scope: 'NATIONAL' as const,
+  },
+  {
+    id: 'demo-dranef',
+    label: 'Démo DRANEF',
+    icon: '📍',
+    description: 'DRANEF Rabat-Salé-Kénitra',
+    email: 'dranef.rsk@anef.ma',
+    password: DEMO_PASSWORD,
+    scope: 'REGIONAL' as const,
+  },
+  {
+    id: 'demo-dpanef',
+    label: 'Démo DPANEF',
+    icon: '🏢',
+    description: 'DPANEF Kénitra',
+    email: 'dpanef.ken@anef.ma',
+    password: DEMO_PASSWORD,
+    scope: 'PROVINCIAL' as const,
+  },
+  {
+    id: 'demo-adp',
+    label: 'Démo ADP',
     icon: '🌱',
-    description: 'DRANEF RSK, DPANEF Kénitra, Sidi Taibi',
+    description: 'ADP terrain — Sidi Taibi, DPANEF Kénitra',
     email: 'adp.demo@anef.ma',
     password: DEMO_PASSWORD,
     scope: 'LOCAL' as const,
@@ -34,7 +61,7 @@ export const DEMO_ACCOUNTS = [
 ] as const;
 
 /** Emails reconnus comme comptes démo (alignés sur le seed) */
-const DEMO_EMAIL_PATTERN = /^(demo|adp\.demo)@anef\.ma$/i;
+const DEMO_EMAIL_PATTERN = /^(demo|demo\.dg|adp\.demo|dranef\.rsk|dpanef\.ken)@anef\.ma$/i;
 
 export function useDemo() {
   const { user } = useAuth();

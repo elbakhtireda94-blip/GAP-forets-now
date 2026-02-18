@@ -260,11 +260,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const result = await mysqlLogin(email, password);
       if ('error' in result) {
         const errorMsg = result.error;
-        const isBackendUnreachable = /HTML|DOCTYPE|JSON|VITE_MYSQL|mauvais endpoint|proxy|Impossible de joindre|Failed to fetch|NetworkError|ECONNREFUSED|Backend temporairement indisponible/i.test(errorMsg);
         const demoAccount = password === DEMO_PASSWORD && DEMO_ACCOUNTS.find(a => a.email.toLowerCase() === email.trim().toLowerCase());
 
-        // Fallback démo sans backend (ex. déploiement Vercel) : tous les comptes démo
-        if (isBackendUnreachable && demoAccount) {
+        // Fallback démo sans backend (ex. déploiement Vercel) : si identifiants démo, accepter même si backend injoignable
+        if (demoAccount) {
           console.log('[Auth] Backend injoignable, connexion démo hors ligne pour:', demoAccount.label);
           const o = demoAccount.offline;
           const rbacUser: User = {
@@ -319,6 +318,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     if (error) {
+      // Fallback démo sans backend : si compte démo (ex. déploiement Vercel sans Supabase config)
+      const demoAccount = password === DEMO_PASSWORD && DEMO_ACCOUNTS.find(a => a.email.toLowerCase() === email.trim().toLowerCase());
+      if (demoAccount) {
+        console.log('[Auth] Supabase login failed, connexion démo hors ligne pour:', demoAccount.label);
+        const o = demoAccount.offline;
+        const rbacUser: User = {
+          id: `offline-demo-${demoAccount.id}`,
+          name: demoAccount.label,
+          email: demoAccount.email,
+          role: scopeToRole(demoAccount.scope),
+          scope_level: demoAccount.scope,
+          role_label: demoAccount.label.replace(/^Démo\s+/, ''),
+          dranef_id: o.dranef_id,
+          dpanef_id: o.dpanef_id,
+          commune_ids: o.commune_ids || [],
+          dranef: o.dranef_id || '',
+          dpanef: o.dpanef_id || '',
+          commune: (o.commune_ids && o.commune_ids[0]) || '',
+        };
+        setUser(rbacUser);
+        setSession({ access_token: 'offline-demo-token', user: { id: rbacUser.id, email: rbacUser.email } } as Session);
+        console.log('[Auth] ✓ Connexion démo hors ligne réussie (Supabase path):', rbacUser.email);
+        setIsLoading(false);
+        return true;
+      }
       setIsLoading(false);
       return false;
     }

@@ -13,6 +13,7 @@ import {
   applyScopeFilter as rbacApplyScopeFilter,
   RegionLookup,
 } from '@/lib/rbac';
+import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '@/hooks/useDemo';
 
 // User interface with RBAC fields
 export interface User {
@@ -259,40 +260,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const result = await mysqlLogin(email, password);
       if ('error' in result) {
         const errorMsg = result.error;
-        const isBackendUnreachable = /HTML|DOCTYPE|JSON|VITE_MYSQL|mauvais endpoint|proxy|Impossible de joindre|Failed to fetch|NetworkError|ECONNREFUSED/i.test(errorMsg);
-        const isDemoAccount = /^(demo|adp\.demo)@anef\.ma$/i.test(email);
-        
-        // Fallback vers DatabaseContext pour comptes démo si backend injoignable
-        if (isBackendUnreachable && isDemoAccount) {
-          console.log('[Auth] Backend injoignable, tentative fallback DatabaseContext pour compte démo');
-          try {
-            const dbUser = database.authenticateUser(email, password);
-            if (dbUser) {
-              // Convertir User DatabaseContext vers User RBAC
-              const scopeLevel: ScopeLevel = dbUser.role === 'admin' ? 'ADMIN' : 'LOCAL';
-              const rbacUser: User = {
-                id: dbUser.id,
-                name: dbUser.full_name,
-                email: dbUser.email,
-                role: dbUser.role,
-                scope_level: scopeLevel,
-                role_label: dbUser.role === 'admin' ? 'Admin' : 'ADP',
-                dranef_id: dbUser.dranef_id || null,
-                dpanef_id: dbUser.dpanef_id || null,
-                commune_ids: dbUser.commune_id ? [dbUser.commune_id] : [],
-                dranef: dbUser.dranef_id || '',
-                dpanef: dbUser.dpanef_id || '',
-                commune: dbUser.commune_id || '',
-              };
-              setUser(rbacUser);
-              setSession({ access_token: 'local-demo-token', user: { id: dbUser.id, email: dbUser.email } } as Session);
-              console.log('[Auth] ✓ Fallback login successful (DatabaseContext), user:', rbacUser.email);
-              setIsLoading(false);
-              return true;
-            }
-          } catch (fallbackErr) {
-            console.error('[Auth] Fallback failed:', fallbackErr);
-          }
+        const isBackendUnreachable = /HTML|DOCTYPE|JSON|VITE_MYSQL|mauvais endpoint|proxy|Impossible de joindre|Failed to fetch|NetworkError|ECONNREFUSED|Backend temporairement indisponible/i.test(errorMsg);
+        const demoAccount = password === DEMO_PASSWORD && DEMO_ACCOUNTS.find(a => a.email.toLowerCase() === email.trim().toLowerCase());
+
+        // Fallback démo sans backend (ex. déploiement Vercel) : tous les comptes démo
+        if (isBackendUnreachable && demoAccount) {
+          console.log('[Auth] Backend injoignable, connexion démo hors ligne pour:', demoAccount.label);
+          const o = demoAccount.offline;
+          const rbacUser: User = {
+            id: `offline-demo-${demoAccount.id}`,
+            name: demoAccount.label,
+            email: demoAccount.email,
+            role: scopeToRole(demoAccount.scope),
+            scope_level: demoAccount.scope,
+            role_label: demoAccount.label.replace(/^Démo\s+/, ''),
+            dranef_id: o.dranef_id,
+            dpanef_id: o.dpanef_id,
+            commune_ids: o.commune_ids || [],
+            dranef: o.dranef_id || '',
+            dpanef: o.dpanef_id || '',
+            commune: (o.commune_ids && o.commune_ids[0]) || '',
+          };
+          setUser(rbacUser);
+          setSession({ access_token: 'offline-demo-token', user: { id: rbacUser.id, email: rbacUser.email } } as Session);
+          console.log('[Auth] ✓ Connexion démo hors ligne réussie:', rbacUser.email);
+          setIsLoading(false);
+          return true;
         }
         
         console.error('[Auth] Login failed:', errorMsg);

@@ -12,6 +12,13 @@ import { useAuth } from '@/contexts/AuthContext';
 /** Mot de passe commun pour tous les comptes démo (seed server/seed.js) */
 export const DEMO_PASSWORD = 'Password1';
 
+/** Champs optionnels pour session démo sans backend (ex. déploiement Vercel) */
+export type DemoAccountOffline = {
+  dranef_id: string | null;
+  dpanef_id: string | null;
+  commune_ids: string[];
+};
+
 export const DEMO_ACCOUNTS = [
   {
     id: 'demo-admin',
@@ -21,6 +28,7 @@ export const DEMO_ACCOUNTS = [
     email: 'demo@anef.ma',
     password: DEMO_PASSWORD,
     scope: 'ADMIN' as const,
+    offline: { dranef_id: null, dpanef_id: null, commune_ids: [] } as DemoAccountOffline,
   },
   {
     id: 'demo-dg',
@@ -30,6 +38,7 @@ export const DEMO_ACCOUNTS = [
     email: 'demo.dg@anef.ma',
     password: DEMO_PASSWORD,
     scope: 'NATIONAL' as const,
+    offline: { dranef_id: null, dpanef_id: null, commune_ids: [] } as DemoAccountOffline,
   },
   {
     id: 'demo-dranef',
@@ -39,6 +48,7 @@ export const DEMO_ACCOUNTS = [
     email: 'dranef.rsk@anef.ma',
     password: DEMO_PASSWORD,
     scope: 'REGIONAL' as const,
+    offline: { dranef_id: 'DRANEF-RSK', dpanef_id: null, commune_ids: [] } as DemoAccountOffline,
   },
   {
     id: 'demo-dpanef',
@@ -48,6 +58,7 @@ export const DEMO_ACCOUNTS = [
     email: 'dpanef.ken@anef.ma',
     password: DEMO_PASSWORD,
     scope: 'PROVINCIAL' as const,
+    offline: { dranef_id: 'DRANEF-RSK', dpanef_id: 'DPANEF-KEN', commune_ids: [] } as DemoAccountOffline,
   },
   {
     id: 'demo-adp',
@@ -57,6 +68,7 @@ export const DEMO_ACCOUNTS = [
     email: 'adp.demo@anef.ma',
     password: DEMO_PASSWORD,
     scope: 'LOCAL' as const,
+    offline: { dranef_id: 'DRANEF-RSK', dpanef_id: 'DPANEF-KEN', commune_ids: ['COM-KNTR-01'] } as DemoAccountOffline,
   },
 ] as const;
 

@@ -34,6 +34,7 @@ import PlanningIntelligent from "./pages/PlanningIntelligent";
 import UsersManagement from "./pages/UsersManagement";
 import AdminRoles from "./pages/AdminRoles";
 import AdminAccessCodes from "./pages/AdminAccessCodes";
+import ReferentielCommunes from "./pages/ReferentielCommunes";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,13 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <SupabaseStatus />
         </ProtectedRoute>
+      } />
+
+      {/* Référentiel communes - ADMIN */}
+      <Route path="/admin/referentiel-communes" element={
+        <ScopedRoute requiredScopes={['ADMIN']}>
+          <ReferentielCommunes />
+        </ScopedRoute>
       } />
       
       {/* Access Denied page */}

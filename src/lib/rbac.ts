@@ -31,6 +31,7 @@ export type MenuKey =
   | 'admin_roles'
   | 'admin_access_codes'
   | 'admin_supabase_status'
+  | 'admin_referentiel_communes'
   | 'debug_access';
 
 // Menu access configuration
@@ -50,6 +51,7 @@ export const MENU_ACCESS: Record<MenuKey, ScopeLevel[]> = {
   admin_roles: ['ADMIN'],
   admin_access_codes: ['ADMIN'],
   admin_supabase_status: ['ADMIN'],
+  admin_referentiel_communes: ['ADMIN'],
   debug_access: ['ADMIN'],
 };
 

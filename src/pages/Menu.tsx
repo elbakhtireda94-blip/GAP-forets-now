@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, Users, FileText, Activity, AlertTriangle, User, Building2, Settings, Bug, Unlock, BookOpen, UserCog, Server, Shield, KeyRound, CalendarCheck } from 'lucide-react';
+import { BarChart3, Users, FileText, Activity, AlertTriangle, User, Building2, Settings, Bug, Unlock, BookOpen, UserCog, Server, Shield, KeyRound, CalendarCheck, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { MenuKey } from '@/lib/rbac';
@@ -113,6 +113,14 @@ const allMenuItems: MenuItem[] = [
     icon: KeyRound,
     path: '/admin/access-codes',
     description: "Créer et gérer les codes d'inscription",
+  },
+  {
+    id: 'admin_referentiel_communes',
+    menuKey: 'admin_referentiel_communes',
+    title: 'Référentiel communes',
+    icon: MapPin,
+    path: '/admin/referentiel-communes',
+    description: 'DRANEF, DPANEF, ZDTF et communes',
   },
   {
     id: 'admin_supabase_status',

@@ -5,11 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import AnefLogo from '@/components/AnefLogo';
 import forestHero from '@/assets/forest-hero.jpg';
 import { DEMO_ACCOUNTS } from '@/hooks/useDemo';
+import { isDemoAdminDgDisabled, isDemoAdminOrDgAccount } from '@/lib/demoAdminDg';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useMySQLBackend } from '@/integrations/mysql-api/client';
 import { z } from 'zod';
 
@@ -238,6 +241,7 @@ const Auth: React.FC = () => {
   const handleDemoLogin = async (accountId: string) => {
     const account = DEMO_ACCOUNTS.find(a => a.id === accountId);
     if (!account) return;
+    if (isDemoAdminDgDisabled() && isDemoAdminOrDgAccount(account.id)) return;
 
     setDemoLoading(accountId);
     try {
@@ -521,28 +525,48 @@ const Auth: React.FC = () => {
                     Cliquez sur un compte pour vous connecter. <strong>Mot de passe commun : Password1</strong>
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {DEMO_ACCOUNTS.map((account) => (
-                      <Button
-                        key={account.id}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={!!demoLoading}
-                        onClick={() => handleDemoLogin(account.id)}
-                        className="h-auto py-4 px-4 flex flex-col items-start gap-1.5 text-left hover:bg-primary/10 hover:border-primary/50 transition-all border-2"
-                      >
-                        {demoLoading === account.id ? (
-                          <span className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto" />
-                        ) : (
-                          <>
-                            <span className="text-xl leading-none">{account.icon}</span>
-                            <span className="text-sm font-semibold text-foreground">{account.label}</span>
-                            <span className="text-xs text-muted-foreground leading-tight font-mono">{account.email}</span>
-                            <span className="text-[10px] text-muted-foreground leading-tight">{account.description}</span>
-                          </>
-                        )}
-                      </Button>
-                    ))}
+                    {DEMO_ACCOUNTS.map((account) => {
+                      const adminDgDisabled = isDemoAdminDgDisabled() && isDemoAdminOrDgAccount(account.id);
+                      const btn = (
+                        <Button
+                          key={account.id}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={!!demoLoading || adminDgDisabled}
+                          onClick={() => !adminDgDisabled && handleDemoLogin(account.id)}
+                          className={cn(
+                            'h-auto py-4 px-4 flex flex-col items-start gap-1.5 text-left transition-all border-2',
+                            adminDgDisabled
+                              ? 'opacity-60 cursor-not-allowed hover:bg-transparent hover:border-border'
+                              : 'hover:bg-primary/10 hover:border-primary/50'
+                          )}
+                        >
+                          {demoLoading === account.id ? (
+                            <span className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full mx-auto" />
+                          ) : (
+                            <>
+                              <span className="text-xl leading-none">{account.icon}</span>
+                              <span className="text-sm font-semibold text-foreground">{account.label}</span>
+                              {adminDgDisabled ? (
+                                <span className="text-xs text-muted-foreground leading-tight italic">Réservé – accès interne</span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground leading-tight font-mono">{account.email}</span>
+                              )}
+                              <span className="text-[10px] text-muted-foreground leading-tight">{account.description}</span>
+                            </>
+                          )}
+                        </Button>
+                      );
+                      return adminDgDisabled ? (
+                        <Tooltip key={account.id}>
+                          <TooltipTrigger asChild>{btn}</TooltipTrigger>
+                          <TooltipContent side="top">Réservé – accès interne</TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        btn
+                      );
+                    })}
                   </div>
                   <p className="text-xs text-muted-foreground pt-1">
                     Ces comptes nécessitent un backend déployé (MySQL). En local : <code className="bg-muted px-1 rounded">cd server && npm run dev</code>

@@ -1,13 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { ScopeLevel } from '@/lib/rbac';
+import { isDemoAdminDgDisabled, isDemoAdminOrDgEmail } from '@/lib/demoAdminDg';
 import AccessDenied from '@/pages/AccessDenied';
 
 // Basic protected route - just checks authentication
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const auth = useAuth();
-  
+
   if (auth.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -15,11 +17,16 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
       </div>
     );
   }
-  
+
   if (!auth.isAuthenticated) {
     return <Navigate to="/" replace />;
   }
-  
+
+  if (isDemoAdminDgDisabled() && isDemoAdminOrDgEmail(auth.user?.email)) {
+    toast.error('Accès interne');
+    return <Navigate to="/" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -31,7 +38,7 @@ interface ScopedRouteProps {
 
 export const ScopedRoute: React.FC<ScopedRouteProps> = ({ children, requiredScopes }) => {
   const auth = useAuth();
-  
+
   if (auth.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -39,15 +46,20 @@ export const ScopedRoute: React.FC<ScopedRouteProps> = ({ children, requiredScop
       </div>
     );
   }
-  
+
   if (!auth.isAuthenticated) {
     return <Navigate to="/" replace />;
   }
-  
+
+  if (isDemoAdminDgDisabled() && isDemoAdminOrDgEmail(auth.user?.email)) {
+    toast.error('Accès interne');
+    return <Navigate to="/" replace />;
+  }
+
   if (!auth.hasScope(requiredScopes)) {
     return <AccessDenied />;
   }
-  
+
   return <>{children}</>;
 };
 

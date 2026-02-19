@@ -1,5 +1,7 @@
 # Environment & secrets (ne jamais committer)
 .env
+.env.local
+.env.*.local
 server/.env
 
 # Build
